@@ -8,7 +8,6 @@ from datetime import datetime
 st.set_page_config(page_title="BTS Charts Honduras", page_icon="💜", layout="wide")
 
 def get_kworb_data(url):
-    # Headers para que Kworb nos deje pasar
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
     }
@@ -16,95 +15,82 @@ def get_kworb_data(url):
         response = requests.get(url, headers=headers, timeout=15)
         response.encoding = 'utf-8'
         
-        # Leemos todas las tablas de la página
+        # 1. Extraer todas las tablas
         tables = pd.read_html(response.text)
-        if not tables:
-            return pd.DataFrame()
-            
-        # Seleccionamos la tabla más grande (la que tiene los datos del chart)
-        df = max(tables, key=len)
+        if not tables: return pd.DataFrame()
+        df = max(tables, key=len) # La tabla con más datos es el chart
+
+        # 2. Identificar columnas (Posición, Movimiento, Título)
+        # Usamos índices porque los nombres de las columnas en Kworb varían mucho
+        col_pos = df.columns[0]
+        col_mov = df.columns[1]
         
-        # Lista de artistas para el filtro
-        solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
-        
-        # Identificar columnas por contenido (más seguro que por nombre)
-        # 1. Buscamos la columna que tiene el " - " (Artista - Canción)
+        # Buscamos la columna que contiene el texto de la canción (suele ser la 3ra o tiene "Artist")
         col_title = None
         for col in df.columns:
-            if df[col].astype(str).str.contains(" - ").any():
+            if 'Artist' in str(col) or 'Title' in str(col) or df[col].astype(str).str.contains("-").any():
                 col_title = col
                 break
         
         if col_title is None: return pd.DataFrame()
 
-        # 2. Identificar Puesto (Pos) y Movimiento (P+ o Chg)
-        col_pos = df.columns[0] # Normalmente es la primera
-        col_mov = df.columns[1] # Normalmente es la segunda
+        # 3. FILTRO FLEXIBLE (Busca a los chicos en cualquier parte del nombre del artista)
+        chicos = ["BTS", "JUNG KOOK", "JIMIN", "SUGA", "AGUST D", "J-HOPE", "RM", "JIN"]
+        # El nombre del artista suele estar antes del guion
+        def es_de_bts(text):
+            text_clean = str(text).upper()
+            artista = text_clean.split("-")[0].strip()
+            # Verificamos si es BTS o un solista, o si el nombre contiene "V" como palabra sola
+            return any(c in artista for c in chicos) or " V " in f" {artista} "
 
-        # Filtrado estricto
-        def filter_bts(text):
-            artist = str(text).split(" - ")[0].upper().strip()
-            return any(member == artist for member in solo_bts)
-
-        df_filtered = df[df[col_title].apply(filter_bts)].copy()
+        df_filtered = df[df[col_title].apply(es_de_bts)].copy()
         
-        # Seleccionar columnas finales
+        # 4. Limpiar resultado final
         res = df_filtered[[col_pos, col_mov, col_title]].copy()
         res.columns = ['#', 'Mov', 'Canción']
         
-        # Si es Spotify diario, intentamos traer los Streams
         if 'Streams' in df.columns:
             res['Streams'] = df_filtered['Streams']
             
         return res
-    except:
+    except Exception as e:
         return pd.DataFrame()
 
-# --- INTERFAZ ---
+# --- DISEÑO ---
 st.title("BTS Charts Honduras")
 st.write(f"Actualizado el: {datetime.now().strftime('%d/%m/%Y')}")
 
-# --- BLOQUE SPOTIFY ---
+# --- SPOTIFY ---
 st.header("📊 Spotify Charts")
-col1, col2 = st.columns(2)
-
-with col1:
+c1, c2 = st.columns(2)
+with c1:
     st.subheader("Spotify: Top Daily Songs")
-    data_daily = get_kworb_data("https://kworb.net/spotify/country/hn_daily.html")
-    if not data_daily.empty:
-        st.dataframe(data_daily, hide_index=True, use_container_width=True)
-    else:
-        st.info("Sin canciones de BTS en el Top 200 Diario.")
+    d1 = get_kworb_data("https://kworb.net/spotify/country/hn_daily.html")
+    if not d1.empty: st.dataframe(d1, hide_index=True, use_container_width=True)
+    else: st.info("No hay canciones de BTS en el Top Diario.")
 
-with col2:
+with c2:
     st.subheader("Spotify: Top Weekly Songs")
-    data_weekly = get_kworb_data("https://kworb.net/spotify/country/hn_weekly.html")
-    if not data_weekly.empty:
-        st.dataframe(data_weekly, hide_index=True, use_container_width=True)
-    else:
-        st.info("Sin canciones de BTS en el Top Semanal.")
+    d2 = get_kworb_data("https://kworb.net/spotify/country/hn_weekly.html")
+    if not d2.empty: st.dataframe(d2, hide_index=True, use_container_width=True)
+    else: st.info("No hay canciones de BTS en el Top Semanal.")
 
 st.divider()
 
-# --- BLOQUE OTRAS PLATAFORMAS ---
+# --- APPLE & DEEZER ---
 st.header("🎵 Otras Plataformas")
-col3, col4 = st.columns(2)
-
-with col3:
+c3, c4 = st.columns(2)
+with c3:
     st.subheader("Apple Music: Top Songs")
-    data_apple = get_kworb_data("https://kworb.net/charts/apple_s/hn.html")
-    if not data_apple.empty:
-        st.dataframe(data_apple, hide_index=True, use_container_width=True)
-    else:
-        st.info("Sin datos en Apple Music hoy.")
+    d3 = get_kworb_data("https://kworb.net/charts/apple_s/hn.html")
+    if not d3.empty: st.dataframe(d3, hide_index=True, use_container_width=True)
+    else: st.info("Sin datos en Apple Music hoy.")
 
-with col4:
+with c4:
     st.subheader("Deezer: Top Songs")
-    data_deezer = get_kworb_data("https://kworb.net/charts/deezer/hn.html")
-    if not data_deezer.empty:
-        st.dataframe(data_deezer, hide_index=True, use_container_width=True)
-    else:
-        st.info("Sin datos en Deezer hoy.")
+    d4 = get_kworb_data("https://kworb.net/charts/deezer/hn.html")
+    if not d4.empty: st.dataframe(d4, hide_index=True, use_container_width=True)
+    else: st.info("Sin datos en Deezer hoy.")
 
 st.divider()
 
