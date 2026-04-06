@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 
 # --- CONFIGURACIÓN DE LA PÁGINA ---
-st.set_page_config(page_title="BTS Charts Honduras", page_icon="💜", layout="wide")
+st.set_page_config(page_title="BTS Charts Honduras🇭🇳", page_icon="💜", layout="wide")
 
 # Artistas permitidos
 solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
