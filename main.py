@@ -4,86 +4,53 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 
-st.set_page_config(page_title="BTS Charts Honduras", page_icon="💜", layout="wide")
+# --- CONFIGURACIÓN DE LA PÁGINA ---
+st.set_page_config(page_title="BTS Charts Honduras", page_icon="💜")
 
-# LISTA DE ARTISTAS (El filtro que ya sabemos que funciona)
-solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
-
-def get_data(url, platform_type):
+def get_spotify_daily():
+    url = "https://kworb.net/spotify/country/hn_daily.html"
     headers = {'User-Agent': 'Mozilla/5.0'}
     try:
         response = requests.get(url, headers=headers, timeout=10)
         response.encoding = 'utf-8'
+        
         # Leemos la tabla directamente
         df = pd.read_html(response.text)[0]
         
-        # Filtro: Buscamos en la columna que tiene el nombre (Artist and Title)
+        # Lista de artistas oficial para el filtro
+        solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
+
+        # Filtro: El artista debe ser uno de los chicos
         def es_bts(text):
             artist = str(text).split(" - ")[0].upper().strip()
             return any(m == artist for m in solo_bts)
 
         df_filtered = df[df['Artist and Title'].apply(es_bts)].copy()
 
-        # Seleccionamos columnas según la plataforma
-        if platform_type == "spotify_daily":
-            res = df_filtered[['Pos', 'P+', 'Artist and Title', 'Streams']].copy()
-            res.columns = ['#', 'Mov', 'Canción', 'Streams']
-        else:
-            # Para Semanal, Apple y Deezer (que no tienen streams o no los ocupamos)
-            res = df_filtered[['Pos', 'P+', 'Artist and Title']].copy()
-            res.columns = ['#', 'Mov', 'Canción']
-            
+        # Seleccionamos las columnas del diario (con Streams)
+        res = df_filtered[['Pos', 'P+', 'Artist and Title', 'Streams']].copy()
+        res.columns = ['#', 'Mov', 'Canción', 'Streams']
         return res
     except:
         return pd.DataFrame()
 
-# --- TÍTULO ---
+# --- INTERFAZ ---
 st.title("BTS Charts Honduras")
 st.write(f"Actualizado el: {datetime.now().strftime('%d/%m/%Y')}")
 
-# --- SECCIÓN SPOTIFY ---
-st.header("📊 Spotify Charts")
-col1, col2 = st.columns(2)
+# Título solicitado arriba del cuadro
+st.subheader("Spotify: Top Daily Songs")
 
-with col1:
-    st.subheader("Spotify: Top Daily Songs")
-    df1 = get_data("https://kworb.net/spotify/country/hn_daily.html", "spotify_daily")
-    if not df1.empty:
-        st.dataframe(df1, hide_index=True, use_container_width=True)
-    else:
-        st.info("No se encontraron canciones hoy.")
+# Ejecutar y mostrar datos
+df_daily = get_spotify_daily()
 
-with col2:
-    st.subheader("Spotify: Top Weekly Songs")
-    df2 = get_data("https://kworb.net/spotify/country/hn_weekly.html", "other")
-    if not df2.empty:
-        st.dataframe(df2, hide_index=True, use_container_width=True)
-    else:
-        st.info("No se encontraron canciones esta semana.")
+if not df_daily.empty:
+    st.dataframe(df_daily, hide_index=True, use_container_width=True)
+    st.success(f"Se encontraron {len(df_daily)} canciones en el ranking diario.")
+else:
+    st.info("No se encontraron canciones de BTS en el Top 200 de hoy.")
 
-st.divider()
-
-# --- SECCIÓN OTRAS PLATAFORMAS ---
-st.header("🎵 Otras Plataformas")
-col3, col4 = st.columns(2)
-
-with col3:
-    st.subheader("Apple Music: Top Songs")
-    df3 = get_data("https://kworb.net/charts/apple_s/hn.html", "other")
-    if not df3.empty:
-        st.dataframe(df3, hide_index=True, use_container_width=True)
-    else:
-        st.info("Sin entradas en Apple Music.")
-
-with col4:
-    st.subheader("Deezer: Top Songs")
-    df4 = get_data("https://kworb.net/charts/deezer/hn.html", "other")
-    if not df4.empty:
-        st.dataframe(df4, hide_index=True, use_container_width=True)
-    else:
-        st.info("Sin entradas en Deezer.")
-
-st.divider()
+st.caption("Fuente: Kworb.net")
 # --- SECCIÓN REDES SOCIALES (2 COLUMNAS) ---
 left, right = st.columns(2)
 
