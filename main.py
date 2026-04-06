@@ -89,8 +89,8 @@ def get_global_data(url, table_id, label_time):
         solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
         for tr in table.find_all('tr')[1:]:
             cols = tr.find_all('td')
-            # Kworb Global tiene suficientes columnas (al menos 9)
-            if len(cols) < 9: continue 
+            # Kworb Global tiene: 0:Pos, 1:Mov, 2:Artist-Song, 4:Total Time, 5:Total Streams, 6:Period Streams, 7:Ev
+            if len(cols) < 8: continue 
             
             full_text = cols[2].get_text(separator=" ").strip()
             artist_name = full_text.split(" - ")[0].strip().upper() 
@@ -100,10 +100,10 @@ def get_global_data(url, table_id, label_time):
                     'Puesto': int(cols[0].text.strip()),
                     'Mov': icon_mov(cols[1].text.strip()), 
                     'Canción': full_text,
-                    'Streams': cols[6].text.strip(),       # Los del día/semana actual
+                    'Streams': cols[6].text.strip(),        # Lo que hizo HOY o ESTA SEMANA
                     'Evolución': cols[7].text.strip(),
-                    label_time: cols[4].text.strip(),      # TOTAL de días/semanas que lleva en el chart
-                    'Total Streams': cols[5].text.strip()  # TOTAL de streams desde que salió la canción
+                    label_time: cols[4].text.strip(),       # Días o Semanas TOTALES que lleva en el chart
+                    'Total Streams': cols[5].text.strip()   # Streams acumulados desde el LANZAMIENTO
                 })
         return pd.DataFrame(rows)
     except:
@@ -113,7 +113,7 @@ col_glob_d, col_glob_w = st.columns(2)
 
 with col_glob_d:
     st.subheader("Spotify: Top Daily Songs (Global)")
-    # URL Global Diaria
+    # 'Días' extrae la columna 4 (permanencia total diaria)
     df_glob_d = get_global_data("https://kworb.net/spotify/country/global_daily.html", "spotifydaily", "Días")
     if not df_glob_d.empty:
         st.dataframe(df_glob_d.sort_values('Puesto'), hide_index=True, use_container_width=True)
@@ -122,7 +122,7 @@ with col_glob_d:
 
 with col_glob_w:
     st.subheader("Spotify: Top Weekly Songs (Global)")
-    # URL Global Semanal
+    # 'Semanas' extrae la columna 4 (permanencia total semanal)
     df_glob_w = get_global_data("https://kworb.net/spotify/country/global_weekly.html", "spotifyweekly", "Semanas")
     if not df_glob_w.empty:
         st.dataframe(df_glob_w.sort_values('Puesto'), hide_index=True, use_container_width=True)
