@@ -1,127 +1,73 @@
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import pandas as pd
+import streamlit as st
 import os
 from datetime import datetime
 
-# Credenciales que proporcionaste
-CLIENT_ID = 'f693630ca5df44fa8f10bbcd5fbc6830'
-CLIENT_SECRET = '5ebbe4d9a3b94065a9c7f321d471937c'
+# 1. Configuración de conexión con Streamlit Secrets
+# Esto lee las llaves que pegaste en el menú "Settings > Secrets" de Streamlit
+try:
+    client_id = st.secrets["SPOTIPY_CLIENT_ID"]
+    client_secret = st.secrets["SPOTIPY_CLIENT_SECRET"]
+except:
+    st.error("Error: No se encontraron los Secrets en Streamlit. Configura SPOTIPY_CLIENT_ID y SPOTIPY_CLIENT_SECRET.")
+    st.stop()
 
-auth_manager = SpotifyClientCredentials(client_id=CLIENT_ID, client_secret=CLIENT_SECRET)
+auth_manager = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
 sp = spotipy.Spotify(auth_manager=auth_manager)
 
-def update_charts():
-    # ID de la playlist "Top 200 Honduras" (Chart oficial de Spotify)
-    # Nota: Spotify usa playlists específicas para los charts regionales
+def get_bts_charts():
+    # ID de la playlist Top 50 Honduras (es la más estable para el ranking diario)
     playlist_id = '37i9dQZEVXbJp9wj9p9v7f' 
     
+    # Obtenemos los datos de la playlist
     results = sp.playlist_items(playlist_id)
     tracks = results['items']
     
-    bts_data = []
+    bts_songs = []
     
     for i, item in enumerate(tracks):
         track = item['track']
-        artists = [a['name'].upper() for a in track['artists']]
+        # Buscamos "BTS" en la lista de artistas (mayúsculas para evitar errores)
+        artists_names = [a['name'].upper() for a in track['artists']]
         
-        # Filtramos si BTS está en la lista de artistas
-        if 'BTS' in artists:
-            bts_data.append({
+        if 'BTS' in artists_names:
+            bts_songs.append({
                 'Rank': i + 1,
-                'Song': track['name'],
-                'Artists': ", ".join([a['name'] for a in track['artists']]),
-                'ID': track['id'],
-                'Image': track['album']['images'][2]['url'] if track['album']['images'] else ''
+                'Canción': track['name'],
+                'Artistas': ", ".join([a['name'] for a in track['artists']]),
+                'id': track['id']
             })
-
-    df_new = pd.DataFrame(bts_data)
-
-    # Lógica de comparación con el día anterior
-    history_file = 'data/history_hn.csv'
-    if os.path.exists(history_file):
-        df_old = pd.read_csv(history_file)
-        
-        def get_status(row):
-            if row['ID'] not in df_old['ID'].values:
-                return '<span class="badge bg-info">NEW</span>'
-            
-            old_rank = df_old.loc[df_old['ID'] == row['ID'], 'Rank'].values[0]
-            diff = old_rank - row['Rank']
-            
-            if diff > 0: return f'<span class="text-success">▲ {diff}</span>'
-            if diff < 0: return f'<span class="text-danger">▼ {abs(diff)}</span>'
-            return '<span class="text-muted">=</span>'
-        
-        df_new['Status'] = df_new.apply(get_status, axis=1)
-    else:
-        df_new['Status'] = '<span class="badge bg-info">NEW</span>'
-
-    # Guardar historial para la próxima ejecución
-    os.makedirs('data', exist_ok=True)
-    df_new[['ID', 'Rank']].to_csv(history_file, index=False)
-
-    # Crear el HTML con estilo
-    html_content = f"""
-    <!DOCTYPE html>
-    <html lang="es">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>BTS Charts Honduras</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-        <style>
-            body {{ background-color: #121212; color: white; font-family: sans-serif; }}
-            .table {{ background-color: #1e1e1e; color: white; border-radius: 10px; overflow: hidden; }}
-            .img-album {{ width: 40px; border-radius: 4px; margin-right: 10px; }}
-            h1 {{ color: #bb86fc; font-weight: bold; }}
-        </style>
-    </head>
-    <body class="container py-5">
-        <h1 class="text-center mb-4">BTS Spotify Charts Honduras</h1>
-        <p class="text-center text-muted">Última actualización: {datetime.now().strftime('%Y-%m-%d %H:%M')}</p>
-        <div class="table-responsive">
-            <table class="table table-dark table-hover">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Canción</th>
-                        <th>Movimiento</th>
-                    </tr>
-                </thead>
-                <tbody>
-    """
     
-    for _, row in df_new.iterrows():
-        html_content += f"""
-                    <tr>
-                        <td>{row['Rank']}</td>
-                        <td>
-                            <img src="{row['Image']}" class="img-album">
-                            <strong>{row['Song']}</strong><br>
-                            <small class="text-muted">{row['Artists']}</small>
-                        </td>
-                        <td>{row['Status']}</td>
-                    </tr>
-        """
-    
-    html_content += """
-                </tbody>
-            </table>
-        </div>
-    </body>
-    </html>
-    """
-    
-    with open('index.html', 'w', encoding='utf-8') as f:
-        f.write(html_content)
+    return pd.DataFrame(bts_songs)
 
-if __name__ == "__main__":
-    update_charts()
-# ESTO ES LO QUE MUESTRA LA PÁGINA EN STREAMLIT
-st.title("BTS Charts Honduras 🇭🇳")
+# --- INTERFAZ DE LA PÁGINA ---
+st.set_page_config(page_title="BTS Charts Honduras", page_icon="💜")
+
+st.title("💜 BTS Spotify Charts: Honduras")
+st.write(f"Actualizado el: {datetime.now().strftime('%d/%m/%Y')}")
+
+# Ejecutar la función
+df_new = get_bts_charts()
+
 if not df_new.empty:
-    st.write("Top de BTS en el ranking diario:")
-    st.table(df_new[['Rank', 'Song', 'Status']])
+    # Lógica de comparación simple (puedes mejorarla luego con archivos CSV)
+    st.subheader("Top Diario de Canciones")
+    
+    # Mostramos la tabla bonita
+    # Usamos una columna de "Movimiento" fija por ahora mientras generas historial
+    df_new['Movimiento'] = "NEW" 
+    
+    st.dataframe(
+        df_new[['Rank', 'Canción', 'Artistas', 'Movimiento']],
+        hide_index=True,
+        use_container_width=True
+    )
+    
+    st.success(f"¡Se encontraron {len(df_new)} canciones de BTS en el Top de Honduras!")
 else:
-    st.write("No se encontraron canciones de BTS en el Top 200 hoy.")
+    st.warning("Hoy no se detectaron canciones de BTS en el Top 50 principal de Honduras. ¡A seguir haciendo stream!")
+
+st.divider()
+st.caption("Datos obtenidos directamente de la API de Spotify.")
