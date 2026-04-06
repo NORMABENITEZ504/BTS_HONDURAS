@@ -129,8 +129,15 @@ with col_glob_w:
 
 st.divider()
 
-# --- FUNCIONES DE EXTRACCIÓN PARA APPLE MUSIC ---
+# --- 1. FUNCIÓN DE ICONOS (Poner esto arriba para que no dé NameError) ---
+def icon_mov_simple(val):
+    val = str(val).strip()
+    if val == "=" or val == "0" or val == "": return "➡️ ="
+    if "+" in val: return f"🟩 {val}"
+    if "-" in val: return f"🟥 {val}"
+    return f"🔵 {val}"
 
+# --- 2. FUNCIONES DE EXTRACCIÓN PARA APPLE MUSIC ---
 def get_apple_hn():
     url = "https://kworb.net/charts/apple_s/hn.html"
     headers = {'User-Agent': 'Mozilla/5.0'}
@@ -173,7 +180,7 @@ def get_apple_global():
         return pd.DataFrame(rows)
     except: return pd.DataFrame()
 
-# --- INTERFAZ EN COLUMNAS ---
+# --- 3. INTERFAZ EN COLUMNAS ---
 st.header("🍎 Apple Music Charts")
 
 col_apple_hn, col_apple_gl = st.columns(2)
@@ -182,6 +189,7 @@ with col_apple_hn:
     st.subheader("Honduras")
     df_apple_hn = get_apple_hn()
     if not df_apple_hn.empty:
+        # Ahora ya no dará error porque la función está definida arriba
         df_apple_hn['Mov'] = df_apple_hn['Mov'].apply(icon_mov_simple)
         st.dataframe(df_apple_hn.sort_values('Puesto'), hide_index=True, use_container_width=True)
     else:
