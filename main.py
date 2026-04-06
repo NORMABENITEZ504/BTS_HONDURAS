@@ -76,7 +76,7 @@ st.divider()
 # --- SECCIÓN SPOTIFY GLOBAL (2 COLUMNAS) ---
 st.header("🌍 Spotify Charts: Global")
 
-# 1. Definimos la función completa primero (para que traiga Streams y Evolución)
+# 1. Definimos la función con los nombres de columnas actualizados
 def get_global_data(url, table_id):
     headers = {'User-Agent': 'Mozilla/5.0'}
     try:
@@ -90,7 +90,8 @@ def get_global_data(url, table_id):
         solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
         for tr in table.find_all('tr')[1:]:
             cols = tr.find_all('td')
-            if len(cols) < 7: continue 
+            # Necesitamos al menos 8 columnas para llegar a la Evolución
+            if len(cols) < 8: continue 
             
             full_text = cols[2].get_text(separator=" ").strip()
             parts = full_text.split(" - ")
@@ -101,14 +102,15 @@ def get_global_data(url, table_id):
                     'Puesto': int(cols[0].text.strip()),
                     'Mov': icon_mov(cols[1].text.strip()), 
                     'Canción': full_text,
-                    'Streams Totales': cols[6].text.strip(),
+                    'Streams': cols[6].text.strip(),       # Reproducciones del periodo
+                    'Total Accum': cols[5].text.strip(),   # Reproducciones históricas totales
                     'Evolución': cols[7].text.strip()
                 })
         return pd.DataFrame(rows)
     except:
         return pd.DataFrame()
 
-# 2. Creamos las columnas y mostramos los datos una sola vez
+# 2. Creamos las columnas y mostramos los datos
 col_glob_d, col_glob_w = st.columns(2)
 
 with col_glob_d:
@@ -129,14 +131,15 @@ with col_glob_w:
 
 st.divider()
 
-# --- 1. FUNCIÓN DE ICONOS (Poner esto arriba para que no dé NameError) ---
+# --- FUNCIÓN DE ICONOS ---
+# Asegúrate de que esta función (o la versión que uses) esté definida antes de llamar a get_global_data
 def icon_mov_simple(val):
     val = str(val).strip()
     if val == "=" or val == "0" or val == "": return "➡️ ="
     if "+" in val: return f"🟩 {val}"
     if "-" in val: return f"🟥 {val}"
     return f"🔵 {val}"
-
+    
 # --- 2. FUNCIONES DE EXTRACCIÓN PARA APPLE MUSIC ---
 def get_apple_hn():
     url = "https://kworb.net/charts/apple_s/hn.html"
