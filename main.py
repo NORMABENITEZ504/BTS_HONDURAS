@@ -76,7 +76,7 @@ with col2:
 
 st.divider()
 
-# --- SECCIÓN DE DEEZER Y APPLE MUSIC ---
+# --- SECCIÓN DE DEEZER Y APPLE MUSIC (2 COLUMNAS) ---
 def get_deezer_data():
     url = "https://kworb.net/charts/deezer/hn.html"
     headers = {'User-Agent': 'Mozilla/5.0'}
