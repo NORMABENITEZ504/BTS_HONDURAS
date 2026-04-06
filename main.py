@@ -7,50 +7,75 @@ from datetime import datetime
 # --- CONFIGURACIÓN DE LA PÁGINA ---
 st.set_page_config(page_title="BTS Charts Honduras", page_icon="💜")
 
-def get_spotify_daily():
+def get_kworb_data():
     url = "https://kworb.net/spotify/country/hn_daily.html"
     headers = {'User-Agent': 'Mozilla/5.0'}
+    
     try:
-        response = requests.get(url, headers=headers, timeout=10)
+        response = requests.get(url, headers=headers)
         response.encoding = 'utf-8'
+        soup = BeautifulSoup(response.text, 'html.parser')
+        table = soup.find('table', {'id': 'spotifydaily'})
         
-        # Leemos la tabla directamente
-        df = pd.read_html(response.text)[0]
-        
-        # Lista de artistas oficial para el filtro
+        if not table:
+            return pd.DataFrame()
+
+        rows = []
+        # Artistas permitidos
         solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
 
-        # Filtro: El artista debe ser uno de los chicos
-        def es_bts(text):
-            artist = str(text).split(" - ")[0].upper().strip()
-            return any(m == artist for m in solo_bts)
+        for tr in table.find_all('tr')[1:]:
+            cols = tr.find_all('td')
+            if len(cols) < 3: continue
+            
+            full_text = cols[2].get_text(separator=" ").strip()
+            parts = full_text.split(" - ")
+            artist_name = parts[0].strip().upper() 
+            
+            if any(member == artist_name for member in solo_bts):
+                rows.append({
+                    'Puesto': int(cols[0].text.strip()),
+                    'Mov': cols[1].text.strip(),
+                    'Canción': full_text,
+                    'Reproducciones': cols[6].text.strip(),
+                    'Evolución': cols[7].text.strip()
+                })
 
-        df_filtered = df[df['Artist and Title'].apply(es_bts)].copy()
+        return pd.DataFrame(rows)
 
-        # Seleccionamos las columnas del diario (con Streams)
-        res = df_filtered[['Pos', 'P+', 'Artist and Title', 'Streams']].copy()
-        res.columns = ['#', 'Mov', 'Canción', 'Streams']
-        return res
-    except:
+    except Exception as e:
+        st.error(f"Error: {e}")
         return pd.DataFrame()
 
 # --- INTERFAZ ---
 st.title("BTS Charts Honduras")
 st.write(f"Actualizado el: {datetime.now().strftime('%d/%m/%Y')}")
 
-# Título solicitado arriba del cuadro
+# Nuevo encabezado solicitado
 st.subheader("Spotify: Top Daily Songs")
 
-# Ejecutar y mostrar datos
-df_daily = get_spotify_daily()
+df = get_kworb_data()
 
-if not df_daily.empty:
-    st.dataframe(df_daily, hide_index=True, use_container_width=True)
-    st.success(f"Se encontraron {len(df_daily)} canciones en el ranking diario.")
+if not df.empty:
+    def icon_mov(val):
+        if val == "=": return "➡️ ="
+        if "+" in val: return f"🟩 {val}"
+        if "-" in val: return f"🟥 {val}"
+        return f"🔵 {val}"
+
+    df['Mov'] = df['Mov'].apply(icon_mov)
+    df = df.sort_values('Puesto')
+
+    st.dataframe(
+        df[['Puesto', 'Mov', 'Canción', 'Reproducciones', 'Evolución']],
+        hide_index=True,
+        use_container_width=True
+    )
+    st.success(f"Se encontraron {len(df)} canciones en el ranking.")
 else:
-    st.info("No se encontraron canciones de BTS en el Top 200 de hoy.")
+    st.info("No hay canciones de BTS o solistas en el Top 200 de Honduras hoy.")
 
-st.caption("Fuente: Kworb.net")
+st.caption("Fuente de datos: Kworb.net")
 # --- SECCIÓN REDES SOCIALES (2 COLUMNAS) ---
 left, right = st.columns(2)
 
