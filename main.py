@@ -113,7 +113,7 @@ def get_global_data(url, table_id):
 col_glob_d, col_glob_w = st.columns(2)
 
 with col_glob_d:
-    st.subheader("Spotify: Top Daily Songs (Global)")
+    st.subheader("Spotify: Top Daily Songs")
     df_glob_d = get_global_data("https://kworb.net/spotify/country/global_daily.html", "spotifydaily")
     if not df_glob_d.empty:
         st.dataframe(df_glob_d.sort_values('Puesto'), hide_index=True, use_container_width=True)
@@ -121,7 +121,7 @@ with col_glob_d:
         st.info("No hay canciones de BTS en el Top Diario Global.")
 
 with col_glob_w:
-    st.subheader("Spotify: Top Weekly Songs (Global)")
+    st.subheader("Spotify: Top Weekly Songs")
     df_glob_w = get_global_data("https://kworb.net/spotify/country/global_weekly.html", "spotifyweekly")
     if not df_glob_w.empty:
         st.dataframe(df_glob_w.sort_values('Puesto'), hide_index=True, use_container_width=True)
