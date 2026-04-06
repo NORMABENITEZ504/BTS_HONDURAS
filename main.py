@@ -4,105 +4,117 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 
+# --- CONFIGURACIÓN DE LA PÁGINA ---
 st.set_page_config(page_title="BTS Charts Honduras", page_icon="💜", layout="wide")
 
-# --- FUNCIONES DE EXTRACCIÓN (KWORB) ---
-def get_data(url):
+# --- FUNCIÓN PARA EXTRAER DATOS DE KWORB ---
+def get_kworb_data(url, is_spotify=True):
     headers = {'User-Agent': 'Mozilla/5.0'}
     try:
         response = requests.get(url, headers=headers)
         response.encoding = 'utf-8'
         soup = BeautifulSoup(response.text, 'html.parser')
         table = soup.find('table')
+        if not table:
+            return pd.DataFrame()
+
         df = pd.read_html(str(table))[0]
+        
+        # Identificar columnas dinámicamente
+        col_pos = [c for c in df.columns if 'Pos' in str(c)][0]
+        col_mov = [c for c in df.columns if 'P+' in str(c) or 'Change' in str(c)][0]
+        col_title = [c for c in df.columns if 'Artist' in str(c) or 'Title' in str(c)][0]
         
         # Filtro estricto de BTS y solistas
         solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
         
-        # Limpieza y filtrado
-        df['Artista'] = df['Artist and Title'].str.split(" - ").str[0].str.strip().str.upper()
-        df_filtered = df[df['Artista'].isin(solo_bts)].copy()
-        return df_filtered
+        def filter_bts(text):
+            artist = str(text).split(" - ")[0].upper().strip()
+            return any(member == artist for member in solo_bts)
+
+        df_filtered = df[df[col_title].apply(filter_bts)].copy()
+        
+        # Seleccionar y renombrar columnas básicas
+        cols_to_show = [col_pos, col_mov, col_title]
+        names = ['#', 'Mov', 'Canción']
+        
+        # Agregar Streams solo si es Spotify Diario y existe la columna
+        if is_spotify and 'Streams' in df.columns:
+            cols_to_show.append('Streams')
+            names.append('Streams')
+            
+        res = df_filtered[cols_to_show].copy()
+        res.columns = names
+        return res
     except:
         return pd.DataFrame()
 
-# --- TÍTULO PRINCIPAL ---
+# --- DISEÑO DE LA PÁGINA ---
 st.title("BTS Charts Honduras")
-st.write(f"Última actualización: {datetime.now().strftime('%d/%m/%Y')}")
+st.write(f"Actualizado el: {datetime.now().strftime('%d/%m/%Y')}")
 
-# --- SECCIÓN 1: SPOTIFY DAILY ---
+# --- SECCIÓN SPOTIFY ---
 st.header("📊 Spotify Charts")
-col1, col2 = st.columns(2)
+col_daily, col_weekly = st.columns(2)
 
-with col1:
+with col_daily:
     st.subheader("Spotify: Top Daily Songs")
-    df_daily = get_data("https://kworb.net/spotify/country/hn_daily.html")
-    if not df_daily.empty:
-        st.dataframe(df_daily[['Pos', 'P+', 'Artist and Title', 'Streams']].rename(columns={'Pos':'#', 'P+':'Mov'}), hide_index=True)
+    df_sd = get_kworb_data("https://kworb.net/spotify/country/hn_daily.html", is_spotify=True)
+    if not df_sd.empty:
+        st.dataframe(df_sd, hide_index=True, use_container_width=True)
     else:
-        st.info("Sin datos diarios hoy.")
+        st.info("No hay datos diarios disponibles.")
 
-with col2:
+with col_weekly:
     st.subheader("Spotify: Top Weekly Songs")
-    df_weekly = get_data("https://kworb.net/spotify/country/hn_weekly.html")
-    if not df_weekly.empty:
-        st.dataframe(df_weekly[['Pos', 'P+', 'Artist and Title']].rename(columns={'Pos':'#', 'P+':'Mov'}), hide_index=True)
+    df_sw = get_kworb_data("https://kworb.net/spotify/country/hn_weekly.html", is_spotify=True)
+    if not df_sw.empty:
+        st.dataframe(df_sw, hide_index=True, use_container_width=True)
     else:
-        st.info("Sin datos semanales hoy.")
+        st.info("No hay datos semanales disponibles.")
 
 st.divider()
 
-# --- SECCIÓN 2: APPLE MUSIC & DEEZER ---
-st.header("🎵 Otras Plataformas (Honduras)")
-col3, col4 = st.columns(2)
+# --- SECCIÓN APPLE & DEEZER ---
+st.header("🎵 Otras Plataformas")
+col_apple, col_deezer = st.columns(2)
 
-with col3:
+with col_apple:
     st.subheader("Apple Music: Top Songs")
-    # Nota: Apple Music y Deezer en Kworb a veces usan estructuras distintas, 
-    # este código intenta capturar la tabla estándar.
-    df_apple = get_data("https://kworb.net/charts/apple_s/hn.html")
-    if not df_apple.empty:
-        st.dataframe(df_apple[['Pos', 'P+', 'Artist and Title']].rename(columns={'Pos':'#', 'P+':'Mov'}), hide_index=True)
+    df_am = get_kworb_data("https://kworb.net/charts/apple_s/hn.html", is_spotify=False)
+    if not df_am.empty:
+        st.dataframe(df_am, hide_index=True, use_container_width=True)
     else:
-        st.info("No hay datos de Apple Music disponibles.")
+        st.info("Sin canciones en Apple Music hoy.")
 
-with col4:
+with col_deezer:
     st.subheader("Deezer: Top Songs")
-    df_deezer = get_data("https://kworb.net/charts/deezer/hn.html")
-    if not df_deezer.empty:
-        st.dataframe(df_deezer[['Pos', 'P+', 'Artist and Title']].rename(columns={'Pos':'#', 'P+':'Mov'}), hide_index=True)
+    df_dz = get_kworb_data("https://kworb.net/charts/deezer/hn.html", is_spotify=False)
+    if not df_dz.empty:
+        st.dataframe(df_dz, hide_index=True, use_container_width=True)
     else:
-        st.info("No hay datos de Deezer disponibles.")
+        st.info("Sin canciones en Deezer hoy.")
 
 st.divider()
 
-# --- SECCIÓN 3: ENLACES Y REDES SOCIALES ---
-st.header("🔗 Enlaces Oficiales")
-left_link, right_link = st.columns(2)
+# --- SECCIÓN DE ENLACES Y REDES SOCIALES (DOS COLUMNAS) ---
+col_left, col_right = st.columns(2)
 
-with left_link:
-    st.markdown("### 🎧 Streaming Oficial")
+with col_left:
+    st.markdown("### 🎧 Perfiles Oficiales")
     st.markdown("- [Spotify: BTS](https://open.spotify.com/artist/3Nrfpe0tUJi4K4DXYWgMUX)")
     st.markdown("- [YouTube: BANGTANTV](https://www.youtube.com/@BANGTANTV)")
     st.markdown("- [Apple Music: BTS](https://music.apple.com/artist/bts/667061285)")
     st.markdown("- [Deezer: BTS](https://www.deezer.com/artist/4105021)")
-    st.markdown("#### Solistas en Spotify")
-    st.write("[Jung Kook](https://open.spotify.com/artist/6Ha9SArjAue9uRMQH13T9t) | [Jimin](https://open.spotify.com/artist/1pYpS9vNUn0949YpU66pBy) | [V](https://open.spotify.com/artist/3JsHnS6YvS6vS9z6S6vS9z)")
-    st.write("[RM](https://open.spotify.com/artist/2EcnidS8vL936NidS8vL93) | [Jin](https://open.spotify.com/artist/5pYpS9vNUn0949YpU66pBy) | [j-hope](https://open.spotify.com/artist/0b1sIQumIAsNbqAoIClSpy) | [Agust D](https://open.spotify.com/artist/ klM87p3WdDb)")
+    st.write("**Solistas en Spotify:**")
+    st.caption("[JK](https://open.spotify.com/artist/6HaGArvgnhIPFWv2uCXYqI) | [Jimin](https://open.spotify.com/artist/1pYpS4v8u55uS9ZpZJzZ8Z) | [V](https://open.spotify.com/artist/3ESm3vD6Y7vSndf6XzSclm) | [RM](https://open.spotify.com/artist/2EcnshPshb8V3Xj609FshD) | [Jin](https://open.spotify.com/artist/5vAL9vS8XW3N3vS3v3v3v3) | [Suga](https://open.spotify.com/artist/0u69HUiOaN7Jp6v8z8z8z8) | [j-hope](https://open.spotify.com/artist/0b1886X9vYvYvYvYvYvYvY)")
 
-with right_link:
+with col_right:
     st.markdown("### 📱 Redes Sociales")
     st.markdown("- [X (Twitter): @bts_bighit](https://x.com/bts_bighit)")
     st.markdown("- [Instagram: @bts.bighitofficial](https://www.instagram.com/bts.bighitofficial)")
     st.markdown("- [TikTok: @bts_official_bighit](https://www.tiktok.com/@bts_official_bighit)")
-    st.markdown("- [Facebook: BTS](https://www.facebook.com/bangtan.official)")
-    st.markdown("#### Instagram de los Miembros")
-    st.markdown("- [RM (@rkive)](https://www.instagram.com/rkive)")
-    st.markdown("- [Jin (@jin)](https://www.instagram.com/jin)")
-    st.markdown("- [SUGA (@agustd)](https://www.instagram.com/agustd)")
-    st.markdown("- [j-hope (@uarmyhope)](https://www.instagram.com/uarmyhope)")
-    st.markdown("- [Jimin (@j.m)](https://www.instagram.com/j.m)")
-    st.markdown("- [V (@thv)](https://www.instagram.com/thv)")
-    st.markdown("- [Jung Kook (@mnijungkook)] (https://www.instagram.com/mnijungkook?igsh=MWxueDE4MHh0aG9kYw==)")
+    st.write("**Instagram de los Miembros:**")
+    st.caption("[RM](https://www.instagram.com/rkive) | [Jin](https://www.instagram.com/jin) | [SUGA](https://www.instagram.com/agustd) | [j-hope](https://www.instagram.com/uarmyhope) | [Jimin](https://www.instagram.com/j.m) | [V](https://www.instagram.com/thv) | [JK](https://www.instagram.com/mnijungkook)")
 
-st.caption("Creado para ARMY Honduras 💜")
+st.caption("Hecho para ARMY Honduras 💜")
