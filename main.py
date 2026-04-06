@@ -134,6 +134,64 @@ if not df_deezer.empty:
 else:
     st.info("No se encontraron canciones de BTS en el Top de Deezer hoy.")
 
+# --- SECCIÓN DE APPLE MUSIC ---
+def get_apple_data():
+    url = "https://kworb.net/charts/apple_s/hn.html"
+    headers = {'User-Agent': 'Mozilla/5.0'}
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        response.encoding = 'utf-8'
+        soup = BeautifulSoup(response.text, 'html.parser')
+        
+        # Apple Music en Kworb suele ser la primera tabla de la página
+        table = soup.find('table')
+        if not table:
+            return pd.DataFrame()
+
+        rows = []
+        solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
+
+        for tr in table.find_all('tr')[1:]:
+            cols = tr.find_all('td')
+            # Apple Music estructura: 0:Pos, 1:P+, 2:Artist and Title
+            if len(cols) < 3: continue
+            
+            full_text = cols[2].get_text(separator=" ").strip()
+            parts = full_text.split(" - ")
+            artist_name = parts[0].strip().upper() 
+            
+            if any(member == artist_name for member in solo_bts):
+                rows.append({
+                    'Puesto': int(cols[0].text.strip()),
+                    'Mov': cols[1].text.strip(),
+                    'Canción': full_text
+                })
+        return pd.DataFrame(rows)
+    except:
+        return pd.DataFrame()
+
+st.subheader("Apple Music: Top Songs")
+df_apple = get_apple_data()
+
+if not df_apple.empty:
+    def icon_mov(val):
+        val = str(val).strip()
+        if val == "=" or val == "" or val == "0": return "➡️ ="
+        if "+" in val: return f"🟩 {val}"
+        if "-" in val: return f"🟥 {val}"
+        return f"🔵 {val}"
+
+    df_apple['Mov'] = df_apple['Mov'].apply(icon_mov)
+    
+    # Mostramos Puesto, Movimiento y Canción
+    st.dataframe(
+        df_apple[['Puesto', 'Mov', 'Canción']].sort_values('Puesto'), 
+        hide_index=True, 
+        use_container_width=True
+    )
+else:
+    st.info("No se encontraron canciones de BTS en el Top de Apple Music hoy.")
+    
 # --- SECCIÓN REDES SOCIALES (2 COLUMNAS) ---
 left, right = st.columns(2)
 with left:
