@@ -156,15 +156,26 @@ with col_deezer: # Columna derecha: Deezer
 
 st.divider()
 
-# --- SECCIÓN REDES SOCIALES ---
+# --- SECCIÓN REDES SOCIALES (2 COLUMNAS) ---
+
 left, right = st.columns(2)
+
 with left:
+
     st.markdown("### 🎧 Perfiles Oficiales")
+
     st.write("[Spotify BTS](https://open.spotify.com/artist/3Nrfpe0tUJi4K4DXYWgMUX) | [YouTube](https://www.youtube.com/@BANGTANTV)")
+
     st.write("[Apple Music](https://music.apple.com/artist/bts/667061285) | [Deezer](https://www.deezer.com/artist/4105021)")
+
 with right:
+
     st.markdown("### 📱 Redes Sociales")
+
     st.write("[Instagram](https://www.instagram.com/bts.bighitofficial) | [X](https://x.com/bts_bighit) | [TikTok](https://www.tiktok.com/@bts_official_bighit)")
+
     st.caption("RM | Jin | SUGA | j-hope | Jimin | V | JK")
+
+
 
 st.caption("Creado para ARMY Honduras 💜")
