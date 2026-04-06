@@ -128,145 +128,45 @@ with col_glob_w:
         st.info("No hay canciones de BTS en el Top Semanal Global.")
 
 st.divider()
-
-# --- APPLE MUSIC ---
+# --- SECCIÓN APPLE MUSIC ---
 st.header("🍎 Apple Music Charts")
 a1, a2 = st.columns(2)
 with a1:
     st.subheader("Apple Music: Honduras")
-    df3 = get_data("https://kworb.net/charts/apple_s/hn.html") # Sin ID de tabla
-    if not df3.empty: st.dataframe(df3.sort_values('Puesto'), hide_index=True, use_container_width=True)
-    else: st.info("No hay datos en Apple HN.")
+    df_apple_hn = get_data("https://kworb.net/charts/apple_s/hn.html")
+    if not df_apple_hn.empty:
+        st.dataframe(df_apple_hn.sort_values('Puesto'), hide_index=True, use_container_width=True)
+    else:
+        st.info("Sin datos en Apple Honduras.")
+
 with a2:
     st.subheader("Apple Music: Global")
-    df4 = get_data("https://kworb.net/apple_songs/") # Sin ID de tabla
-    if not df4.empty: st.dataframe(df4.sort_values('Puesto'), hide_index=True, use_container_width=True)
-    else: st.info("No hay datos en Apple Global.")
+    df_apple_gl = get_data("https://kworb.net/apple_songs/")
+    if not df_apple_gl.empty:
+        st.dataframe(df_apple_gl.sort_values('Puesto'), hide_index=True, use_container_width=True)
+    else:
+        st.info("Sin datos en Apple Global.")
 
 st.divider()
 
-# --- DEEZER ---
+# --- SECCIÓN DEEZER ---
 st.header("🎵 Deezer Charts")
 d1, d2 = st.columns(2)
 with d1:
     st.subheader("Deezer: Honduras")
-    df5 = get_data("https://kworb.net/charts/deezer/hn.html") # Sin ID de tabla
-    if not df5.empty: st.dataframe(df5.sort_values('Puesto'), hide_index=True, use_container_width=True)
-    else: st.info("No hay datos en Deezer HN.")
+    df_deezer_hn = get_data("https://kworb.net/charts/deezer/hn.html")
+    if not df_deezer_hn.empty:
+        st.dataframe(df_deezer_hn.sort_values('Puesto'), hide_index=True, use_container_width=True)
+    else:
+        st.info("Sin datos en Deezer Honduras.")
+
 with d2:
     st.subheader("Deezer: Global")
-    df6 = get_data("https://kworb.net/charts/deezer/ww.html") # Sin ID de tabla
-    if not df6.empty: st.dataframe(df6.sort_values('Puesto'), hide_index=True, use_container_width=True)
-    else: st.info("No hay datos en Deezer Global.")
-
-# Creamos las dos columnas
-col_apple_hn, col_apple_gl = st.columns(2)
-
-with col_apple_hn:
-    st.subheader("Apple Music: Top Songs (Honduras)")
-    df_apple_hn = get_apple_data("https://kworb.net/charts/apple_s/hn.html")
-    if not df_apple_hn.empty:
-        df_apple_hn['Mov'] = df_apple_hn['Mov'].apply(icon_mov_simple)
-        st.dataframe(df_apple_hn.sort_values('Puesto'), hide_index=True, use_container_width=True)
+    df_deezer_gl = get_data("https://kworb.net/charts/deezer/ww.html")
+    if not df_deezer_gl.empty:
+        st.dataframe(df_deezer_gl.sort_values('Puesto'), hide_index=True, use_container_width=True)
     else:
-        st.info("No hay canciones de BTS en Apple Music Honduras hoy.")
-
-with col_apple_gl:
-    st.subheader("Apple Music: Top Songs (Global)")
-    # URL Global que proporcionaste
-    df_apple_gl = get_apple_data("https://kworb.net/apple_songs/")
-    if not df_apple_gl.empty:
-        df_apple_gl['Mov'] = df_apple_gl['Mov'].apply(icon_mov_simple)
-        st.dataframe(df_apple_gl.sort_values('Puesto'), hide_index=True, use_container_width=True)
-    else:
-        st.info("No hay canciones de BTS en el Chart Global de Apple Music.")
-
-st.divider()
-# --- SECCIÓN APPLE MUSIC (HONDURAS VS GLOBAL) ---
-st.header("🍎 Apple Music Charts")
-
-def get_apple_data(url):
-    headers = {'User-Agent': 'Mozilla/5.0'}
-    try:
-        response = requests.get(url, headers=headers, timeout=10)
-        response.encoding = 'utf-8'
-        soup = BeautifulSoup(response.text, 'html.parser')
-        
-        # En las páginas de Apple Music, Kworb usa la primera tabla disponible
-        table = soup.find('table')
-        if not table: return pd.DataFrame()
-        
-        rows = []
-        solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
-        
-        for tr in table.find_all('tr')[1:]:
-            cols = tr.find_all('td')
-            # Apple Music estructura: 0:Pos, 1:Mov, 2:Artist and Title
-            if len(cols) < 3: continue
-            
-            full_text = cols[2].get_text(separator=" ").strip()
-            parts = full_text.split(" - ")
-            artist_name = parts[0].strip().upper() 
-            
-            if any(member == artist_name for member in solo_bts):
-                rows.append({
-                    'Puesto': int(cols[0].text.strip()),
-                    'Mov': cols[1].text.strip(),
-                    'Canción': full_text
-                })
-        return pd.DataFrame(rows)
-    except:
-        return pd.DataFrame()
-
-# Creamos las dos columnas
-col_apple_hn, col_apple_gl = st.columns(2)
-
-with col_apple_hn:
-    st.subheader("Apple Music: Top Songs (Honduras)")
-    df_apple_hn = get_apple_data("https://kworb.net/charts/apple_s/hn.html")
-    if not df_apple_hn.empty:
-        df_apple_hn['Mov'] = df_apple_hn['Mov'].apply(icon_mov_simple)
-        st.dataframe(df_apple_hn.sort_values('Puesto'), hide_index=True, use_container_width=True)
-    else:
-        st.info("No hay canciones de BTS en Apple Music Honduras hoy.")
-
-with col_apple_gl:
-    st.subheader("Apple Music: Top Songs (Global)")
-    # URL Global que proporcionaste
-    df_apple_gl = get_apple_data("https://kworb.net/apple_songs/")
-    if not df_apple_gl.empty:
-        df_apple_gl['Mov'] = df_apple_gl['Mov'].apply(icon_mov_simple)
-        st.dataframe(df_apple_gl.sort_values('Puesto'), hide_index=True, use_container_width=True)
-    else:
-        st.info("No hay canciones de BTS en el Chart Global de Apple Music.")
-
-st.divider()
-
-# --- MOSTRAR TABLAS A LA PAR ---
-def icon_mov_simple(val):
-    val = str(val).strip()
-    if val == "=" or val == "" or val == "0": return "➡️ ="
-    if "+" in val: return f"🟩 {val}"
-    if "-" in val: return f"🟥 {val}"
-    return f"🔵 {val}"
-
-with col_apple: # Columna izquierda: Apple Music
-    st.subheader("Apple Music: Top Songs")
-    df_apple = get_apple_data()
-    if not df_apple.empty:
-        df_apple['Mov'] = df_apple['Mov'].apply(icon_mov_simple)
-        st.dataframe(df_apple[['Puesto', 'Mov', 'Canción']].sort_values('Puesto'), hide_index=True, use_container_width=True)
-    else:
-        st.info("Sin datos en Apple Music.")
-
-with col_deezer: # Columna derecha: Deezer
-    st.subheader("Deezer: Top Songs")
-    df_deezer = get_deezer_data()
-    if not df_deezer.empty:
-        df_deezer['Mov'] = df_deezer['Mov'].apply(icon_mov_simple)
-        st.dataframe(df_deezer[['Puesto', 'Mov', 'Canción']].sort_values('Puesto'), hide_index=True, use_container_width=True)
-    else:
-        st.info("Sin datos en Deezer.")
+        st.info("Sin datos en Deezer Global.")
 
 st.divider()
 
