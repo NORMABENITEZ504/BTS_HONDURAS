@@ -2,72 +2,61 @@ import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import pandas as pd
 import streamlit as st
-import os
 from datetime import datetime
 
-# 1. Configuración de conexión con Streamlit Secrets
-# Esto lee las llaves que pegaste en el menú "Settings > Secrets" de Streamlit
+# 1. Configuración de conexión Segura
 try:
+    # Intentamos leer de Streamlit Secrets
     client_id = st.secrets["SPOTIPY_CLIENT_ID"]
     client_secret = st.secrets["SPOTIPY_CLIENT_SECRET"]
-except:
-    st.error("Error: No se encontraron los Secrets en Streamlit. Configura SPOTIPY_CLIENT_ID y SPOTIPY_CLIENT_SECRET.")
+    
+    auth_manager = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
+    sp = spotipy.Spotify(auth_manager=auth_manager)
+except Exception as e:
+    st.error(f"Error de configuración: {e}")
     st.stop()
 
-auth_manager = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
-sp = spotipy.Spotify(auth_manager=auth_manager)
-
 def get_bts_charts():
-    # ID de la playlist Top 50 Honduras (es la más estable para el ranking diario)
+    # ID del Top 50 de Honduras (Asegúrate que sea este exacto)
     playlist_id = '37i9dQZEVXbJp9wj9p9v7f' 
     
-    # Obtenemos los datos de la playlist
-    results = sp.playlist_items(playlist_id)
-    tracks = results['items']
-    
-    bts_songs = []
-    
-    for i, item in enumerate(tracks):
-        track = item['track']
-        # Buscamos "BTS" en la lista de artistas (mayúsculas para evitar errores)
-        artists_names = [a['name'].upper() for a in track['artists']]
+    try:
+        # Pedimos los datos (limitado a 50 para evitar errores de saturación)
+        results = sp.playlist_items(playlist_id, fields='items.track(name,id,artists,album(images))', limit=50)
+        tracks = results['items']
         
-        if 'BTS' in artists_names:
-            bts_songs.append({
-                'Rank': i + 1,
-                'Canción': track['name'],
-                'Artistas': ", ".join([a['name'] for a in track['artists']]),
-                'id': track['id']
-            })
-    
-    return pd.DataFrame(bts_songs)
+        bts_songs = []
+        for i, item in enumerate(tracks):
+            track = item['track']
+            if not track: continue
+            
+            artists_names = [a['name'].upper() for a in track['artists']]
+            
+            if 'BTS' in artists_names:
+                bts_songs.append({
+                    'Rank': i + 1,
+                    'Canción': track['name'],
+                    'Artistas': ", ".join([a['name'] for a in track['artists']]),
+                    'ID': track['id']
+                })
+        return pd.DataFrame(bts_songs)
+    except Exception as e:
+        st.error(f"Error al conectar con Spotify: {e}")
+        return pd.DataFrame()
 
-# --- INTERFAZ DE LA PÁGINA ---
+# --- INTERFAZ ---
 st.set_page_config(page_title="BTS Charts Honduras", page_icon="💜")
-
 st.title("💜 BTS Spotify Charts: Honduras")
-st.write(f"Actualizado el: {datetime.now().strftime('%d/%m/%Y')}")
 
-# Ejecutar la función
+# Botón para actualizar manualmente
+if st.button('Actualizar Datos'):
+    st.cache_data.clear()
+
 df_new = get_bts_charts()
 
 if not df_new.empty:
-    # Lógica de comparación simple (puedes mejorarla luego con archivos CSV)
-    st.subheader("Top Diario de Canciones")
-    
-    # Mostramos la tabla bonita
-    # Usamos una columna de "Movimiento" fija por ahora mientras generas historial
-    df_new['Movimiento'] = "NEW" 
-    
-    st.dataframe(
-        df_new[['Rank', 'Canción', 'Artistas', 'Movimiento']],
-        hide_index=True,
-        use_container_width=True
-    )
-    
-    st.success(f"¡Se encontraron {len(df_new)} canciones de BTS en el Top de Honduras!")
+    st.subheader(f"Top Diario - {datetime.now().strftime('%d/%m/%Y')}")
+    st.dataframe(df_new[['Rank', 'Canción', 'Artistas']], hide_index=True, use_container_width=True)
+    st.success(f"¡Encontramos {len(df_new)} temas en el Top!")
 else:
-    st.warning("Hoy no se detectaron canciones de BTS en el Top 50 principal de Honduras. ¡A seguir haciendo stream!")
-
-st.divider()
-st.caption("Datos obtenidos directamente de la API de Spotify.")
+    st.info("No se encontraron canciones de BTS en el Top 50 de Honduras en este momento.")
