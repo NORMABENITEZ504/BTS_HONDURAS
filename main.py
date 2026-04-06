@@ -129,6 +129,73 @@ with col_glob_w:
 
 st.divider()
 
+# --- FUNCIONES DE EXTRACCIÓN PARA APPLE MUSIC ---
+
+def get_apple_hn():
+    url = "https://kworb.net/charts/apple_s/hn.html"
+    headers = {'User-Agent': 'Mozilla/5.0'}
+    try:
+        response = requests.get(url, headers=headers, timeout=15)
+        response.encoding = 'utf-8'
+        soup = BeautifulSoup(response.text, 'html.parser')
+        table = soup.find('table')
+        if not table: return pd.DataFrame()
+        rows = []
+        solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
+        for tr in table.find_all('tr')[1:]:
+            cols = tr.find_all('td')
+            if len(cols) < 3: continue
+            full_text = cols[2].get_text(separator=" ").strip()
+            artist_name = full_text.split(" - ")[0].strip().upper()
+            if any(member == artist_name for member in solo_bts):
+                rows.append({'Puesto': int(cols[0].text.strip()), 'Mov': cols[1].text.strip(), 'Canción': full_text})
+        return pd.DataFrame(rows)
+    except: return pd.DataFrame()
+
+def get_apple_global():
+    url = "https://kworb.net/apple_songs/"
+    headers = {'User-Agent': 'Mozilla/5.0'}
+    try:
+        response = requests.get(url, headers=headers, timeout=15)
+        response.encoding = 'utf-8'
+        soup = BeautifulSoup(response.text, 'html.parser')
+        table = soup.find('table')
+        if not table: return pd.DataFrame()
+        rows = []
+        solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
+        for tr in table.find_all('tr')[1:]:
+            cols = tr.find_all('td')
+            if len(cols) < 3: continue
+            full_text = cols[2].get_text(separator=" ").strip()
+            artist_name = full_text.split(" - ")[0].strip().upper()
+            if any(member == artist_name for member in solo_bts):
+                rows.append({'Puesto': int(cols[0].text.strip()), 'Mov': cols[1].text.strip(), 'Canción': full_text})
+        return pd.DataFrame(rows)
+    except: return pd.DataFrame()
+
+# --- INTERFAZ EN COLUMNAS ---
+st.header("🍎 Apple Music Charts")
+
+col_apple_hn, col_apple_gl = st.columns(2)
+
+with col_apple_hn:
+    st.subheader("Honduras")
+    df_apple_hn = get_apple_hn()
+    if not df_apple_hn.empty:
+        df_apple_hn['Mov'] = df_apple_hn['Mov'].apply(icon_mov_simple)
+        st.dataframe(df_apple_hn.sort_values('Puesto'), hide_index=True, use_container_width=True)
+    else:
+        st.info("Sin datos en Apple Honduras.")
+
+with col_apple_gl:
+    st.subheader("Global")
+    df_apple_gl = get_apple_global()
+    if not df_apple_gl.empty:
+        df_apple_gl['Mov'] = df_apple_gl['Mov'].apply(icon_mov_simple)
+        st.dataframe(df_apple_gl.sort_values('Puesto'), hide_index=True, use_container_width=True)
+    else:
+        st.info("Sin datos en Apple Global.")
+
 # --- FUNCIONES DE EXTRACCIÓN (Honduras y Global) ---
 
 def get_deezer_hn():
