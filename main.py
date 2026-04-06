@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
-import re
+from datetime import datetime
 
 st.set_page_config(page_title="BTS Charts Honduras", page_icon="💜")
 
@@ -12,74 +12,77 @@ def get_kworb_data():
     
     try:
         response = requests.get(url, headers=headers)
-        # Forzamos la codificación correcta para evitar caracteres raros
         response.encoding = 'utf-8'
-        
         soup = BeautifulSoup(response.text, 'html.parser')
         table = soup.find('table', {'id': 'spotifydaily'})
         
         if not table:
-            st.error("No se pudo encontrar la tabla en Kworb.")
             return pd.DataFrame()
 
-        # Extraemos las filas manualmente para mayor precisión
         rows = []
-        for tr in table.find_all('tr')[1:]: # Saltamos el encabezado
+        for tr in table.find_all('tr')[1:]:
             cols = tr.find_all('td')
             if len(cols) < 3: continue
             
-            # Limpiamos el texto de la columna de Artista y Canción
-            raw_text = cols[2].get_text(separator=" ").strip()
+            # Extraemos el texto de la columna Artista - Canción
+            # Kworb separa el artista de la canción con un " - "
+            full_text = cols[2].get_text(separator=" ").strip()
             
-            rows.append({
-                'Puesto': cols[0].text.strip(),
-                'Mov': cols[1].text.strip(),
-                'Contenido': raw_text,
-                'Streams': cols[6].text.strip(),
-                'Evolución': cols[7].text.strip()
-            })
+            # Lista oficial de nombres a filtrar (Exactos)
+            # Agregamos los nombres artísticos oficiales para no mezclar con otros
+            bts_members = [
+                "BTS", "JUNG KOOK", "JIMIN", " V ", "SUGA", 
+                "J-HOPE", "RM", "JIN", "AGUST D", "V"
+            ]
+            
+            # Verificamos si alguno de estos nombres es el ARTISTA principal
+            # (Normalmente el artista aparece antes del primer "-")
+            artist_part = full_text.split(" - ")[0].upper()
+            
+            es_bts = any(member.upper() in artist_part for member in bts_members)
+            
+            if es_bts:
+                rows.append({
+                    'Puesto': int(cols[0].text.strip()),
+                    'Mov': cols[1].text.strip(),
+                    'Canción': full_text,
+                    'Reproducciones': cols[6].text.strip(),
+                    'Evolución': cols[7].text.strip()
+                })
 
-        df = pd.DataFrame(rows)
-
-        # Filtro de búsqueda mejorado (BTS y solistas)
-        # Agregué variantes para asegurar que no se escape nada
-        terminos = ["BTS", "JUNG KOOK", "JIMIN", " V ", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
-        pattern = '|'.join(terminos)
-        
-        # Buscamos en el contenido limpio
-        df_bts = df[df['Contenido'].str.contains(pattern, case=False, na=False)].copy()
-        
-        return df_bts
+        return pd.DataFrame(rows)
 
     except Exception as e:
-        st.error(f"Error técnico: {e}")
+        st.error(f"Error al filtrar datos: {e}")
         return pd.DataFrame()
 
 # --- INTERFAZ ---
-st.title("💜 BTS & Solistas: Honduras Daily")
-
-if st.button('🔄 Forzar Actualización'):
-    st.cache_data.clear()
+st.title("💜 Solo BTS: Honduras Daily Chart")
+st.write(f"Filtrado exclusivo para ARMY Honduras - {datetime.now().strftime('%d/%m/%Y')}")
 
 df = get_kworb_data()
 
 if not df.empty:
-    # Formato visual para los movimientos
+    # Iconos de movimiento
     def icon_mov(val):
         if val == "=": return "➡️ ="
         if "+" in val: return f"🟩 {val}"
         if "-" in val: return f"🟥 {val}"
-        return f"🔵 {val}"
+        if "RE" in val: return "🔵 RE"
+        return val
 
     df['Mov'] = df['Mov'].apply(icon_mov)
 
+    # Ordenar por puesto (del más alto al más bajo)
+    df = df.sort_values('Puesto')
+
     st.dataframe(
-        df[['Puesto', 'Mov', 'Contenido', 'Streams', 'Evolución']],
+        df[['Puesto', 'Mov', 'Canción', 'Reproducciones', 'Evolución']],
         hide_index=True,
         use_container_width=True
     )
-    st.success(f"¡Éxito! Se encontraron {len(df)} entradas de BTS en el Top 200 de Honduras.")
+    st.success(f"¡Lista lista! Se encontraron {len(df)} canciones de BTS/Solistas.")
 else:
-    st.warning("No se encontraron coincidencias. Revisa si los nombres en Kworb han cambiado.")
+    st.warning("No hay canciones de BTS en el Top 200 de Honduras hoy.")
 
-st.caption("Fuente: Kworb.net")
+st.caption("Fuente: Kworb.net (Spotify Daily Chart)")
