@@ -128,8 +128,14 @@ with col_glob_w:
     else:
         st.info("No hay canciones de BTS en el Top Semanal Global.")
 
-st.divider()
-    
+st.divider()# --- 1. FUNCIÓN DE ICONOS (Poner esto arriba para que no dé NameError) ---
+def icon_mov_simple(val):
+    val = str(val).strip()
+    if val == "=" or val == "0" or val == "": return "➡️ ="
+    if "+" in val: return f"🟩 {val}"
+    if "-" in val: return f"🟥 {val}"
+    return f"🔵 {val}"
+
 # --- 2. FUNCIONES DE EXTRACCIÓN PARA APPLE MUSIC ---
 def get_apple_hn():
     url = "https://kworb.net/charts/apple_s/hn.html"
@@ -196,7 +202,6 @@ with col_apple_gl:
         st.dataframe(df_apple_gl.sort_values('Puesto'), hide_index=True, use_container_width=True)
     else:
         st.info("Sin datos en Apple Global.")
-
 # --- FUNCIONES DE EXTRACCIÓN (Honduras y Global) ---
 
 def get_deezer_hn():
