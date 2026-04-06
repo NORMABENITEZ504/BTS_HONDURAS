@@ -130,7 +130,6 @@ with col_glob_w:
 st.divider()
 
 # --- SECCIÓN DE DEEZER Y APPLE MUSIC (AQUÍ ESTÁ EL CAMBIO PARA QUE VAYAN A LA PAR) ---
-st.header("🎵 Otras Plataformas")
 col_apple, col_deezer = st.columns(2) # Creamos las dos columnas
 
 # --- FUNCIONES DE EXTRACCIÓN ---
