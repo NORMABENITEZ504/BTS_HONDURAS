@@ -52,7 +52,7 @@ st.title("BTS Charts Honduras")
 st.write(f"Actualizado el: {datetime.now().strftime('%d/%m/%Y')}")
 
 # --- SECCIÓN SPOTIFY ---
-st.header("📊 Spotify Charts")
+st.header("📊 Spotify Charts Honduras")
 col1, col2 = st.columns(2)
 
 with col1:
