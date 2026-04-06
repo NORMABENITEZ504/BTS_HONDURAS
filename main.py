@@ -129,43 +129,35 @@ with col_glob_w:
 
 st.divider()
 
-# --- SECCIÓN APPLE MUSIC ---
+# --- APPLE MUSIC ---
 st.header("🍎 Apple Music Charts")
-c3, c4 = st.columns(2)
-with c3:
+a1, a2 = st.columns(2)
+with a1:
     st.subheader("Apple Music: Honduras")
-    df3 = get_generic_data("https://kworb.net/charts/apple_s/hn.html")
-    if not df3.empty:
-        df3['Mov'] = df3['Mov'].apply(icon_mov_simple)
-        st.dataframe(df3.sort_values('Puesto'), hide_index=True, use_container_width=True)
-    else: st.info("Sin datos.")
-with c4:
+    df3 = get_data("https://kworb.net/charts/apple_s/hn.html") # Sin ID de tabla
+    if not df3.empty: st.dataframe(df3.sort_values('Puesto'), hide_index=True, use_container_width=True)
+    else: st.info("No hay datos en Apple HN.")
+with a2:
     st.subheader("Apple Music: Global")
-    df4 = get_generic_data("https://kworb.net/apple_songs/")
-    if not df4.empty:
-        df4['Mov'] = df4['Mov'].apply(icon_mov_simple)
-        st.dataframe(df4.sort_values('Puesto'), hide_index=True, use_container_width=True)
-    else: st.info("Sin datos.")
-
-# --- SECCIÓN DEEZER ---
-st.header("🎵 Deezer Charts")
-c5, c6 = st.columns(2)
-with c5:
-    st.subheader("Deezer: Honduras")
-    df5 = get_generic_data("https://kworb.net/charts/deezer/hn.html")
-    if not df5.empty:
-        df5['Mov'] = df5['Mov'].apply(icon_mov_simple)
-        st.dataframe(df5.sort_values('Puesto'), hide_index=True, use_container_width=True)
-    else: st.info("Sin datos.")
-with c6:
-    st.subheader("Deezer: Global")
-    df6 = get_generic_data("https://kworb.net/charts/deezer/ww.html")
-    if not df6.empty:
-        df6['Mov'] = df6['Mov'].apply(icon_mov_simple)
-        st.dataframe(df6.sort_values('Puesto'), hide_index=True, use_container_width=True)
-    else: st.info("Sin datos.")
+    df4 = get_data("https://kworb.net/apple_songs/") # Sin ID de tabla
+    if not df4.empty: st.dataframe(df4.sort_values('Puesto'), hide_index=True, use_container_width=True)
+    else: st.info("No hay datos en Apple Global.")
 
 st.divider()
+
+# --- DEEZER ---
+st.header("🎵 Deezer Charts")
+d1, d2 = st.columns(2)
+with d1:
+    st.subheader("Deezer: Honduras")
+    df5 = get_data("https://kworb.net/charts/deezer/hn.html") # Sin ID de tabla
+    if not df5.empty: st.dataframe(df5.sort_values('Puesto'), hide_index=True, use_container_width=True)
+    else: st.info("No hay datos en Deezer HN.")
+with d2:
+    st.subheader("Deezer: Global")
+    df6 = get_data("https://kworb.net/charts/deezer/ww.html") # Sin ID de tabla
+    if not df6.empty: st.dataframe(df6.sort_values('Puesto'), hide_index=True, use_container_width=True)
+    else: st.info("No hay datos en Deezer Global.")
 
 # Creamos las dos columnas
 col_apple_hn, col_apple_gl = st.columns(2)
