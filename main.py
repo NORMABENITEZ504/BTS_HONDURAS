@@ -4,11 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 
-# --- CONFIGURACIÓN DE LA PÁGINA ---
-st.set_page_config(page_title="BTS Charts Honduras (Kworb)", page_icon="💜")
-
-st.title("💜 BTS & Soloists: Honduras Daily Chart")
-st.markdown("Datos extraídos directamente de **Kworb.net** (Spotify Honduras)")
+st.set_page_config(page_title="BTS Charts Honduras", page_icon="💜")
 
 def get_kworb_data():
     url = "https://kworb.net/spotify/country/hn_daily.html"
@@ -16,58 +12,62 @@ def get_kworb_data():
     
     try:
         response = requests.get(url, headers=headers)
-        # Usamos pandas para leer todas las tablas del HTML
-        tables = pd.read_html(response.text)
-        df = tables[0] # La primera tabla es el chart diario
+        # Usamos BeautifulSoup para procesar el HTML que me pasaste
+        soup = BeautifulSoup(response.text, 'html.parser')
+        table = soup.find('table', {'id': 'spotifydaily'})
         
-        # Kworb pone Artista y Título en una sola columna "Artist and Title"
-        # Filtramos filas que contengan "BTS" o solistas
+        # Leer la tabla con Pandas
+        df = pd.read_html(str(table))[0]
+        
+        # Filtramos por BTS y solistas
         solistas = ["BTS", "JUNG KOOK", "JIMIN", "V ", "SUGA", "J-HOPE", "RM", "JIN"]
-        
-        # Filtro de búsqueda (insensible a mayúsculas)
         pattern = '|'.join(solistas)
+        
+        # Filtramos la columna 'Artist and Title'
         df_bts = df[df['Artist and Title'].str.contains(pattern, case=False, na=False)].copy()
         
-        # Limpiamos un poco los nombres de las columnas
+        # Renombrar para que se vea bien
         df_bts = df_bts.rename(columns={
             'Pos': 'Puesto',
-            'Artist and Title': 'Artista y Canción',
-            'Streams': 'Reproducciones',
-            'P+': 'Movimiento'
+            'P+': 'Mov',
+            'Artist and Title': 'Canción',
+            'Streams': 'Daily Streams',
+            'Streams+': 'Evolución'
         })
         
         return df_bts
     except Exception as e:
-        st.error(f"Error al conectar con Kworb: {e}")
+        st.error(f"Error al procesar Kworb: {e}")
         return pd.DataFrame()
 
-# --- MOSTRAR DATOS ---
-if st.button('🔄 Actualizar desde Kworb'):
-    st.cache_data.clear()
+# --- INTERFAZ ---
+st.title("💜 BTS Charts Honduras")
+st.write(f"Datos oficiales de Kworb - {datetime.now().strftime('%d/%m/%Y')}")
 
-df_final = get_kworb_data()
+df = get_kworb_data()
 
-if not df_final.empty:
-    st.success(f"Se encontraron {len(df_final)} canciones en el Top 200 de Honduras.")
-    
-    # Diseño de la tabla
-    st.subheader(f"Ranking al {datetime.now().strftime('%d/%m/%Y')}")
-    
-    # Formatear la columna de movimiento para que se vea mejor
-    # (Kworb usa = para estable, + para subir y - para bajar)
-    def style_move(val):
-        if '+' in str(val): return f"🟩 {val}"
-        if '-' in str(val): return f"🟥 {val}"
-        return f"⬜ {val}"
-    
-    df_final['Movimiento'] = df_final['Movimiento'].apply(style_move)
+if not df.empty:
+    # Función para poner iconos a los movimientos
+    def format_mov(val):
+        val = str(val)
+        if '=' in val: return "➡️ ="
+        if '+' in val: return f"🟩 {val}"
+        if '-' in val: return f"🟥 {val}"
+        if 'RE' in val: return "🔵 RE"
+        if 'NEW' in val: return "✨ NEW"
+        return val
 
+    df['Mov'] = df['Mov'].apply(format_mov)
+
+    # Mostrar la tabla
     st.dataframe(
-        df_final[['Puesto', 'Movimiento', 'Artista y Canción', 'Reproducciones']],
+        df[['Puesto', 'Mov', 'Canción', 'Daily Streams', 'Evolución']],
         hide_index=True,
         use_container_width=True
     )
+    
+    st.success(f"¡Se encontraron {len(df)} canciones en el Top 200!")
 else:
-    st.info("No se encontraron canciones de BTS o sus solistas en el Top 200 de hoy.")
+    st.info("No se encontraron canciones de BTS en el ranking de hoy.")
 
-st.caption("Fuente: Kworb.net - Spotify Daily Chart Honduras")
+st.caption("Fuente: Kworb.net (Spotify Daily Chart Honduras)")
