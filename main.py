@@ -21,22 +21,17 @@ def get_kworb_data():
             return pd.DataFrame()
 
         rows = []
-        # LISTA OFICIAL (Solo estos artistas pueden aparecer)
+        # Artistas permitidos
         solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
 
         for tr in table.find_all('tr')[1:]:
             cols = tr.find_all('td')
             if len(cols) < 3: continue
             
-            # Extraemos el texto de la columna "Artist and Title"
             full_text = cols[2].get_text(separator=" ").strip()
-            
-            # Dividimos para obtener el nombre del artista (lo que está antes del guion)
-            # Ejemplo: "BTS - SWIM" -> Artista: "BTS"
             parts = full_text.split(" - ")
             artist_name = parts[0].strip().upper() 
             
-            # FILTRO ESTRICTO: El artista debe ser exactamente uno de nuestra lista
             if any(member == artist_name for member in solo_bts):
                 rows.append({
                     'Puesto': int(cols[0].text.strip()),
@@ -52,9 +47,12 @@ def get_kworb_data():
         st.error(f"Error: {e}")
         return pd.DataFrame()
 
-# --- INTERFAZ (TÍTULO NUEVO) ---
+# --- INTERFAZ ---
 st.title("BTS Charts Honduras")
 st.write(f"Actualizado el: {datetime.now().strftime('%d/%m/%Y')}")
+
+# Nuevo encabezado solicitado
+st.subheader("Spotify: Top Daily Songs")
 
 df = get_kworb_data()
 
