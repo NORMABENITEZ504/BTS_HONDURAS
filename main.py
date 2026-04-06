@@ -129,27 +129,33 @@ with col_glob_w:
 
 st.divider()
 
-# --- SECCIÓN DE DEEZER Y APPLE MUSIC (AQUÍ ESTÁ EL CAMBIO PARA QUE VAYAN A LA PAR) ---
-st.header("Apple Music")
-col_apple, col_deezer = st.columns(2) # Creamos las dos columnas
+# --- SECCIÓN DE DEEZER  ---
+# --- SECCIÓN APPLE MUSIC (HONDURAS VS GLOBAL) ---
+st.header("🍎 Apple Music Charts")
 
-# --- FUNCIONES DE EXTRACCIÓN ---
-def get_deezer_data():
-    url = "https://kworb.net/charts/deezer/hn.html"
+def get_apple_data(url):
     headers = {'User-Agent': 'Mozilla/5.0'}
     try:
         response = requests.get(url, headers=headers, timeout=10)
         response.encoding = 'utf-8'
         soup = BeautifulSoup(response.text, 'html.parser')
+        
+        # En las páginas de Apple Music, Kworb usa la primera tabla disponible
         table = soup.find('table')
         if not table: return pd.DataFrame()
+        
         rows = []
+        solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
+        
         for tr in table.find_all('tr')[1:]:
             cols = tr.find_all('td')
+            # Apple Music estructura: 0:Pos, 1:Mov, 2:Artist and Title
             if len(cols) < 3: continue
+            
             full_text = cols[2].get_text(separator=" ").strip()
             parts = full_text.split(" - ")
             artist_name = parts[0].strip().upper() 
+            
             if any(member == artist_name for member in solo_bts):
                 rows.append({
                     'Puesto': int(cols[0].text.strip()),
@@ -157,24 +163,58 @@ def get_deezer_data():
                     'Canción': full_text
                 })
         return pd.DataFrame(rows)
-    except: return pd.DataFrame()
+    except:
+        return pd.DataFrame()
 
-def get_apple_data():
-    url = "https://kworb.net/charts/apple_s/hn.html"
+# Creamos las dos columnas
+col_apple_hn, col_apple_gl = st.columns(2)
+
+with col_apple_hn:
+    st.subheader("Apple Music: Top Songs (Honduras)")
+    df_apple_hn = get_apple_data("https://kworb.net/charts/apple_s/hn.html")
+    if not df_apple_hn.empty:
+        df_apple_hn['Mov'] = df_apple_hn['Mov'].apply(icon_mov_simple)
+        st.dataframe(df_apple_hn.sort_values('Puesto'), hide_index=True, use_container_width=True)
+    else:
+        st.info("No hay canciones de BTS en Apple Music Honduras hoy.")
+
+with col_apple_gl:
+    st.subheader("Apple Music: Top Songs (Global)")
+    # URL Global que proporcionaste
+    df_apple_gl = get_apple_data("https://kworb.net/apple_songs/")
+    if not df_apple_gl.empty:
+        df_apple_gl['Mov'] = df_apple_gl['Mov'].apply(icon_mov_simple)
+        st.dataframe(df_apple_gl.sort_values('Puesto'), hide_index=True, use_container_width=True)
+    else:
+        st.info("No hay canciones de BTS en el Chart Global de Apple Music.")
+
+st.divider()
+# --- SECCIÓN APPLE MUSIC (HONDURAS VS GLOBAL) ---
+st.header("🍎 Apple Music Charts")
+
+def get_apple_data(url):
     headers = {'User-Agent': 'Mozilla/5.0'}
     try:
         response = requests.get(url, headers=headers, timeout=10)
         response.encoding = 'utf-8'
         soup = BeautifulSoup(response.text, 'html.parser')
+        
+        # En las páginas de Apple Music, Kworb usa la primera tabla disponible
         table = soup.find('table')
         if not table: return pd.DataFrame()
+        
         rows = []
+        solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
+        
         for tr in table.find_all('tr')[1:]:
             cols = tr.find_all('td')
+            # Apple Music estructura: 0:Pos, 1:Mov, 2:Artist and Title
             if len(cols) < 3: continue
+            
             full_text = cols[2].get_text(separator=" ").strip()
             parts = full_text.split(" - ")
             artist_name = parts[0].strip().upper() 
+            
             if any(member == artist_name for member in solo_bts):
                 rows.append({
                     'Puesto': int(cols[0].text.strip()),
@@ -182,7 +222,32 @@ def get_apple_data():
                     'Canción': full_text
                 })
         return pd.DataFrame(rows)
-    except: return pd.DataFrame()
+    except:
+        return pd.DataFrame()
+
+# Creamos las dos columnas
+col_apple_hn, col_apple_gl = st.columns(2)
+
+with col_apple_hn:
+    st.subheader("Apple Music: Top Songs (Honduras)")
+    df_apple_hn = get_apple_data("https://kworb.net/charts/apple_s/hn.html")
+    if not df_apple_hn.empty:
+        df_apple_hn['Mov'] = df_apple_hn['Mov'].apply(icon_mov_simple)
+        st.dataframe(df_apple_hn.sort_values('Puesto'), hide_index=True, use_container_width=True)
+    else:
+        st.info("No hay canciones de BTS en Apple Music Honduras hoy.")
+
+with col_apple_gl:
+    st.subheader("Apple Music: Top Songs (Global)")
+    # URL Global que proporcionaste
+    df_apple_gl = get_apple_data("https://kworb.net/apple_songs/")
+    if not df_apple_gl.empty:
+        df_apple_gl['Mov'] = df_apple_gl['Mov'].apply(icon_mov_simple)
+        st.dataframe(df_apple_gl.sort_values('Puesto'), hide_index=True, use_container_width=True)
+    else:
+        st.info("No hay canciones de BTS en el Chart Global de Apple Music.")
+
+st.divider()
 
 # --- MOSTRAR TABLAS A LA PAR ---
 def icon_mov_simple(val):
