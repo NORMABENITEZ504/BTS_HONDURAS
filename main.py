@@ -75,44 +75,22 @@ st.divider()
 
 # --- SECCIÓN SPOTIFY GLOBAL (2 COLUMNAS) ---
 st.header("🌍 Spotify Charts: Global")
-col_glob_d, col_glob_w = st.columns(2)
 
-with col_glob_d:
-    st.subheader("Spotify: Top Daily Songs (Global)")
-    df_glob_d = get_kworb_data("https://kworb.net/spotify/country/global_daily.html", "spotifydaily")
-    if not df_glob_d.empty:
-        st.dataframe(df_glob_d.sort_values('Puesto'), hide_index=True, use_container_width=True)
-    else:
-        st.info("No hay canciones de BTS en el Top Diario Global.")
-
-with col_glob_w:
-    st.subheader("Spotify: Top Weekly Songs (Global)")
-    df_glob_w = get_kworb_data("https://kworb.net/spotify/country/global_weekly.html", "spotifyweekly")
-    if not df_glob_w.empty:
-        st.dataframe(df_glob_w.sort_values('Puesto'), hide_index=True, use_container_width=True)
-    else:
-        st.info("No hay canciones de BTS en el Top Semanal Global.")
-
-st.divider()
-def get_global_weekly():
-    url = "https://kworb.net/spotify/country/global_weekly.html"
+# 1. Definimos la función completa primero (para que traiga Streams y Evolución)
+def get_global_data(url, table_id):
     headers = {'User-Agent': 'Mozilla/5.0'}
     try:
         response = requests.get(url, headers=headers, timeout=10)
         response.encoding = 'utf-8'
         soup = BeautifulSoup(response.text, 'html.parser')
-        
-        # El ID de la tabla para el semanal en Kworb es 'spotifyweekly'
-        table = soup.find('table', {'id': 'spotifyweekly'})
-        if not table:
-            return pd.DataFrame()
+        table = soup.find('table', {'id': table_id})
+        if not table: return pd.DataFrame()
 
         rows = []
         solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
-
         for tr in table.find_all('tr')[1:]:
             cols = tr.find_all('td')
-            if len(cols) < 7: continue # Aseguramos que tenga todas las columnas
+            if len(cols) < 7: continue 
             
             full_text = cols[2].get_text(separator=" ").strip()
             parts = full_text.split(" - ")
@@ -121,7 +99,7 @@ def get_global_weekly():
             if any(member == artist_name for member in solo_bts):
                 rows.append({
                     'Puesto': int(cols[0].text.strip()),
-                    'Mov': icon_mov(cols[1].text.strip()), # Usa tu función de iconos
+                    'Mov': icon_mov(cols[1].text.strip()), 
                     'Canción': full_text,
                     'Streams Totales': cols[6].text.strip(),
                     'Evolución': cols[7].text.strip()
@@ -130,18 +108,27 @@ def get_global_weekly():
     except:
         return pd.DataFrame()
 
-# --- PARA MOSTRARLO EN LA INTERFAZ ---
-st.subheader("Spotify: Top Weekly Songs (Global)")
-df_glob_w = get_global_weekly()
+# 2. Creamos las columnas y mostramos los datos una sola vez
+col_glob_d, col_glob_w = st.columns(2)
 
-if not df_glob_w.empty:
-    st.dataframe(
-        df_glob_w.sort_values('Puesto'), 
-        hide_index=True, 
-        use_container_width=True
-    )
-else:
-    st.info("No hay canciones de BTS en el Top Semanal Global hoy.")
+with col_glob_d:
+    st.subheader("Spotify: Top Daily Songs (Global)")
+    df_glob_d = get_global_data("https://kworb.net/spotify/country/global_daily.html", "spotifydaily")
+    if not df_glob_d.empty:
+        st.dataframe(df_glob_d.sort_values('Puesto'), hide_index=True, use_container_width=True)
+    else:
+        st.info("No hay canciones de BTS en el Top Diario Global.")
+
+with col_glob_w:
+    st.subheader("Spotify: Top Weekly Songs (Global)")
+    df_glob_w = get_global_data("https://kworb.net/spotify/country/global_weekly.html", "spotifyweekly")
+    if not df_glob_w.empty:
+        st.dataframe(df_glob_w.sort_values('Puesto'), hide_index=True, use_container_width=True)
+    else:
+        st.info("No hay canciones de BTS en el Top Semanal Global.")
+
+st.divider()
+
 # --- SECCIÓN DE DEEZER Y APPLE MUSIC (AQUÍ ESTÁ EL CAMBIO PARA QUE VAYAN A LA PAR) ---
 st.header("🎵 Otras Plataformas")
 col_apple, col_deezer = st.columns(2) # Creamos las dos columnas
