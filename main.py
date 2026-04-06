@@ -52,6 +52,7 @@ st.title("BTS Charts Honduras")
 st.write(f"Actualizado el: {datetime.now().strftime('%d/%m/%Y')}")
 
 # --- SECCIÓN SPOTIFY ---
+with tab1:
 st.header("📊 Spotify Charts Honduras")
 col1, col2 = st.columns(2)
 
@@ -74,6 +75,7 @@ with col2:
 st.divider()
 
 # --- SECCIÓN SPOTIFY GLOBAL (2 COLUMNAS) ---
+with tab2:
 st.header("🌍 Spotify Charts: Global")
 
 # 1. Definimos la función limpia (Solo Puesto, Mov, Canción, Streams y Evolución)
@@ -180,6 +182,7 @@ def get_apple_global():
     except: return pd.DataFrame()
 
 # --- 3. INTERFAZ EN COLUMNAS ---
+with tab3:
 st.header("🍎 Apple Music Charts")
 
 col_apple_hn, col_apple_gl = st.columns(2)
@@ -254,6 +257,7 @@ def icon_mov_simple(val):
     return f"🔵 {val}"
 
 # --- INTERFAZ EN COLUMNAS ---
+with tab4:
 st.header("🎵 Deezer Charts")
 
 col_hn, col_gl = st.columns(2)
