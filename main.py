@@ -118,3 +118,10 @@ def update_charts():
 
 if __name__ == "__main__":
     update_charts()
+# ESTO ES LO QUE MUESTRA LA PÁGINA EN STREAMLIT
+st.title("BTS Charts Honduras 🇭🇳")
+if not df_new.empty:
+    st.write("Top de BTS en el ranking diario:")
+    st.table(df_new[['Rank', 'Song', 'Status']])
+else:
+    st.write("No se encontraron canciones de BTS en el Top 200 hoy.")
