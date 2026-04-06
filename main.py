@@ -76,7 +76,7 @@ with col2:
 
 st.divider()
 
-# --- SECCIÓN DE DEEZER ---
+# --- SECCIÓN DE DEEZER Y APPLE MUSIC ---
 def get_deezer_data():
     url = "https://kworb.net/charts/deezer/hn.html"
     headers = {'User-Agent': 'Mozilla/5.0'}
@@ -134,7 +134,6 @@ if not df_deezer.empty:
 else:
     st.info("No se encontraron canciones de BTS en el Top de Deezer hoy.")
 
-# --- SECCIÓN DE APPLE MUSIC ---
 def get_apple_data():
     url = "https://kworb.net/charts/apple_s/hn.html"
     headers = {'User-Agent': 'Mozilla/5.0'}
