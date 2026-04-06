@@ -128,47 +128,80 @@ with col_glob_w:
         st.info("No hay canciones de BTS en el Top Semanal Global.")
 
 st.divider()
-# --- SECCIÓN APPLE MUSIC ---
-st.header("🍎 Apple Music Charts")
-a1, a2 = st.columns(2)
-with a1:
-    st.subheader("Apple Music: Honduras")
-    df_apple_hn = get_data("https://kworb.net/charts/apple_s/hn.html")
-    if not df_apple_hn.empty:
-        st.dataframe(df_apple_hn.sort_values('Puesto'), hide_index=True, use_container_width=True)
-    else:
-        st.info("Sin datos en Apple Honduras.")
 
-with a2:
-    st.subheader("Apple Music: Global")
-    df_apple_gl = get_data("https://kworb.net/apple_songs/")
-    if not df_apple_gl.empty:
-        st.dataframe(df_apple_gl.sort_values('Puesto'), hide_index=True, use_container_width=True)
-    else:
-        st.info("Sin datos en Apple Global.")
+# --- FUNCIONES DE EXTRACCIÓN (Honduras y Global) ---
 
-st.divider()
+def get_deezer_hn():
+    url = "https://kworb.net/charts/deezer/hn.html"
+    headers = {'User-Agent': 'Mozilla/5.0'}
+    try:
+        response = requests.get(url, headers=headers, timeout=15)
+        response.encoding = 'utf-8'
+        soup = BeautifulSoup(response.text, 'html.parser')
+        table = soup.find('table')
+        if not table: return pd.DataFrame()
+        rows = []
+        solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
+        for tr in table.find_all('tr')[1:]:
+            cols = tr.find_all('td')
+            if len(cols) < 3: continue
+            full_text = cols[2].get_text(separator=" ").strip()
+            artist_name = full_text.split(" - ")[0].strip().upper()
+            if any(member == artist_name for member in solo_bts):
+                rows.append({'Puesto': int(cols[0].text.strip()), 'Mov': cols[1].text.strip(), 'Canción': full_text})
+        return pd.DataFrame(rows)
+    except: return pd.DataFrame()
 
-# --- SECCIÓN DEEZER ---
+def get_deezer_global():
+    url = "https://kworb.net/charts/deezer/ww.html"
+    headers = {'User-Agent': 'Mozilla/5.0'}
+    try:
+        response = requests.get(url, headers=headers, timeout=15)
+        response.encoding = 'utf-8'
+        soup = BeautifulSoup(response.text, 'html.parser')
+        table = soup.find('table')
+        if not table: return pd.DataFrame()
+        rows = []
+        solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
+        for tr in table.find_all('tr')[1:]:
+            cols = tr.find_all('td')
+            if len(cols) < 3: continue
+            full_text = cols[2].get_text(separator=" ").strip()
+            artist_name = full_text.split(" - ")[0].strip().upper()
+            if any(member == artist_name for member in solo_bts):
+                rows.append({'Puesto': int(cols[0].text.strip()), 'Mov': cols[1].text.strip(), 'Canción': full_text})
+        return pd.DataFrame(rows)
+    except: return pd.DataFrame()
+
+def icon_mov_simple(val):
+    val = str(val).strip()
+    if val == "=" or val == "0" or val == "": return "➡️ ="
+    if "+" in val: return f"🟩 {val}"
+    if "-" in val: return f"🟥 {val}"
+    return f"🔵 {val}"
+
+# --- INTERFAZ EN COLUMNAS ---
 st.header("🎵 Deezer Charts")
-d1, d2 = st.columns(2)
-with d1:
-    st.subheader("Deezer: Honduras")
-    df_deezer_hn = get_data("https://kworb.net/charts/deezer/hn.html")
-    if not df_deezer_hn.empty:
-        st.dataframe(df_deezer_hn.sort_values('Puesto'), hide_index=True, use_container_width=True)
-    else:
-        st.info("Sin datos en Deezer Honduras.")
 
-with d2:
-    st.subheader("Deezer: Global")
-    df_deezer_gl = get_data("https://kworb.net/charts/deezer/ww.html")
+col_hn, col_gl = st.columns(2)
+
+with col_hn:
+    st.subheader("Honduras")
+    df_deezer = get_deezer_hn()
+    if not df_deezer.empty:
+        df_deezer['Mov'] = df_deezer['Mov'].apply(icon_mov_simple)
+        st.dataframe(df_deezer.sort_values('Puesto'), hide_index=True, use_container_width=True)
+    else:
+        st.info("Sin datos en Honduras.")
+
+with col_gl:
+    st.subheader("Global")
+    df_deezer_gl = get_deezer_global()
     if not df_deezer_gl.empty:
+        df_deezer_gl['Mov'] = df_deezer_gl['Mov'].apply(icon_mov_simple)
         st.dataframe(df_deezer_gl.sort_values('Puesto'), hide_index=True, use_container_width=True)
     else:
-        st.info("Sin datos en Deezer Global.")
-
-st.divider()
+        st.info("Sin datos Globales.")
 
 # --- SECCIÓN REDES SOCIALES (RESTAURADA EXACTAMENTE COMO LA QUERÍAS) ---
 left, right = st.columns(2)
