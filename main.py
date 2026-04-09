@@ -10,34 +10,40 @@ st.set_page_config(page_title="BTS Charts Honduras 🇭🇳", page_icon="💜", 
 # --- ESTILOS CSS PERSONALIZADOS ---
 st.markdown("""
     <style>
-    /* Título principal centrado y más grande */
+    /* Título principal centrado y MUCHO más grande */
     .main-title {
         text-align: center;
         color: #7D52B5;
         font-family: 'Trebuchet MS', sans-serif;
-        font-size: 4rem; /* Más grande */
+        font-size: 5.5rem; /* Tamaño extra grande */
         font-weight: bold;
-        margin-bottom: 0px;
+        margin-top: -50px;
+        margin-bottom: -10px;
     }
     .sub-title {
         text-align: center;
         color: #9B72CF;
         font-family: 'Trebuchet MS', sans-serif;
-        font-size: 1.5rem;
-        margin-bottom: 30px;
+        font-size: 2rem;
+        margin-bottom: 40px;
     }
     h1, h2, h3 {
         color: #7D52B5 !important;
     }
     /* Estilo para los tabs */
     .stTabs [data-baseweb="tab-list"] button [data-testid="stMarkdownContainer"] p {
-        font-size: 1.2rem;
+        font-size: 1.3rem;
         font-weight: bold;
+    }
+    /* Estilo de tablas moraditas claro */
+    .stTable {
+        background-color: #F8F1FF;
+        border-radius: 10px;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- FUNCIÓN PARA PINTAR TABLAS DE MORADO CLARO ---
+# --- FUNCIÓN PARA PINTAR TABLAS ---
 def style_df(df):
     if df.empty: return df
     return df.style.set_properties(**{
@@ -86,7 +92,7 @@ def get_simple_chart(url):
     try:
         response = requests.get(url, headers=headers, timeout=15)
         response.encoding = 'utf-8'
-        soup = BeautifulSoup(soup := response.text, 'html.parser')
+        soup = BeautifulSoup(response.text, 'html.parser')
         table = soup.find('table')
         if not table: return pd.DataFrame()
         rows = []
@@ -112,7 +118,7 @@ tab_spot, tab_apple, tab_deezer, tab_yt, tab_social = st.tabs([
 with tab_spot:
     st.header("📊 Spotify Charts")
     
-    # PRIMERO HONDURAS
+    # HONDURAS PRIMERO
     st.subheader("Honduras 🇭🇳")
     c1, c2 = st.columns(2)
     with c1:
@@ -126,7 +132,7 @@ with tab_spot:
     
     st.divider()
     
-    # LUEGO GLOBAL
+    # GLOBAL SEGUNDO
     st.subheader("Global 🌍")
     c3, c4 = st.columns(2)
     with c3:
@@ -164,18 +170,17 @@ with tab_deezer:
 
 with tab_yt:
     st.header("📺 YouTube Charts Honduras")
-    c_y1, c_y2 = st.columns(2)
-    with c_y1:
+    c_yt1, c_yt2 = st.columns(2)
+    with c_yt1:
         st.info("🕒 **Actualización Diaria**")
         st.link_button("🔥 VER TOP DIARIO", "https://charts.youtube.com/charts/TopVideos/hn/daily", use_container_width=True)
-    with c_y2:
+    with c_yt2:
         st.success("📅 **Resumen Semanal**")
         st.link_button("👑 VER TOP SEMANAL", "https://charts.youtube.com/charts/TopVideos/hn/weekly", use_container_width=True)
 
 with tab_social:
-    # --- SECCIÓN REDES SOCIALES (RESTAURADA EXACTAMENTE) ---
+    # --- REDES SOCIALES RESTAURADAS ---
     left, right = st.columns(2)
-
     with left:
         st.markdown("### Plataformas de Streaming Oficiales")
         st.markdown("- [Spotify: BTS](https://open.spotify.com/artist/3Nrfpe0tUJi4K4DXYWgMUX)")
@@ -183,7 +188,6 @@ with tab_social:
         st.markdown("- [Apple Music: BTS](https://music.apple.com/artist/bts/667061285)")
         st.markdown("- [Deezer: BTS](https://www.deezer.com/artist/4105021)")
         st.write("**Spotify Solistas:** [JK](https://open.spotify.com/intl-es/artist/6HaGTQPmzraVmaVxvz6EUc) | [Jimin](https://open.spotify.com/intl-es/artist/1oSPZhvZMIrWW5I41kPkkY) | [V](https://open.spotify.com/artist/3JsHnjpbhX4SnySpvpa9DK) | [RM](https://open.spotify.com/intl-es/artist/2auC28zjQyVTsiZKNgPRGs) | [Jin](https://open.spotify.com/artist/5vV3bFXnN6D6N3Nj4xRvaV) | [Suga](https://open.spotify.com/intl-es/artist/5RmQ8k4l3HZ8JoPb4mNsML) | [j-hope](https://open.spotify.com/artist/0b1sIQumIAsNbqAoIClSpy)")
-
     with right:
         st.markdown("### Redes Sociales")
         st.markdown("- [Instagram: @bts.bighitofficial](https://www.instagram.com/bts.bighitofficial)")
@@ -192,4 +196,4 @@ with tab_social:
         st.write("**Instagram Miembros:**")
         st.caption("[RM](https://www.instagram.com/rkive) | [Jin](https://www.instagram.com/jin) | [SUGA](https://www.instagram.com/agustd) | [j-hope](https://www.instagram.com/uarmyhope) | [Jimin](https://www.instagram.com/j.m) | [V](https://www.instagram.com/thv) | [JK](https://www.instagram.com/mnijungkook)")
 
-st.markdown('<p style="text-align: center; color: #7D52B5; margin-top: 50px;">Hecho con 💜 para ARMY Honduras</p>', unsafe_allow_html=True)
+st.markdown('<p style="text-align: center; color: #7D52B5; margin-top: 50px;">Hecho con amor para ARMY Honduras💜</p>', unsafe_allow_html=True)
