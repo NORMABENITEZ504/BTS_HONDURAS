@@ -144,7 +144,8 @@ with tab_deezer:
         st.subheader("Global 🌍")
         df_dg = get_simple_chart("https://kworb.net/charts/deezer/ww.html")
         st.table(style_df(df_dg))
-
+        
+with tab_yt:
 # --- SECCIÓN YOUTUBE MUSIC HONDURAS (MANUAL) ---
 st.header("🎧 YouTube Music Honduras")
 
