@@ -7,50 +7,34 @@ from datetime import datetime
 # --- CONFIGURACIÓN DE LA PÁGINA ---
 st.set_page_config(page_title="BTS Charts Honduras 🇭🇳", page_icon="💜", layout="wide")
 
-# --- ESTILOS CSS PERSONALIZADOS ---
+# --- ESTILOS CSS PERSONALIZADOS (Color ARMY) ---
 st.markdown("""
     <style>
-    /* Título principal alineado a la IZQUIERDA y MUCHO más grande */
-    .main-title {
-        text-align: left;
-        color: #7D52B5;
-        font-family: 'Trebuchet MS', sans-serif;
-        font-size: 5.5rem; /* Tamaño extra grande solicitado */
-        font-weight: bold;
-        margin-top: -50px;
-        margin-bottom: 0px;
-    }
-    .sub-title {
-        text-align: left;
-        color: #9B72CF;
-        font-family: 'Trebuchet MS', sans-serif;
-        font-size: 2rem;
-        margin-bottom: 40px;
-    }
+    /* Color de títulos y acentos */
     h1, h2, h3 {
         color: #7D52B5 !important;
+        font-family: 'Trebuchet MS', sans-serif;
+    }
+    /* Estilo de las tarjetas de métricas */
+    div[data-testid="stMetricValue"] {
+        color: #7D52B5;
+    }
+    /* Líneas divisorias moradas */
+    hr {
+        border-top: 2px solid #7D52B5;
+    }
+    /* Bordes de tablas y contenedores */
+    .stDataFrame {
+        border: 1px solid #7D52B5;
+        border-radius: 10px;
     }
     /* Estilo para los tabs */
     .stTabs [data-baseweb="tab-list"] button [data-testid="stMarkdownContainer"] p {
-        font-size: 1.3rem;
+        font-size: 1.1rem;
         font-weight: bold;
-    }
-    /* Estilo de tablas moraditas claro */
-    .stTable {
-        background-color: #F8F1FF;
-        border-radius: 10px;
     }
     </style>
     """, unsafe_allow_html=True)
-
-# --- FUNCIÓN PARA PINTAR TABLAS ---
-def style_df(df):
-    if df.empty: return df
-    return df.style.set_properties(**{
-        'background-color': '#F8F1FF',
-        'color': '#4A148C',
-        'border-color': '#E1BEE7'
-    })
 
 # --- VARIABLES Y FUNCIONES DE DATOS ---
 solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
