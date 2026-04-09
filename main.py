@@ -124,9 +124,9 @@ st.title("💜 BTS Charts Honduras")
 # Usamos una fecha de ejemplo, puedes usar datetime.now() para la fecha actual.
 st.write(f"Actualizado el: {datetime.now().strftime('%d/%m/%Y')}")
 
-# --- SISTEMA DE PESTAÑAS ---
-tab_spot, tab_ytm, tab_apple, tab_deezer, tab_yt, tab_social = st.tabs([
-    "🎧 Spotify", "🎵 YouTube Music", "🍎 Apple Music", "🔊 Deezer", "📺 YouTube", "🔗 Redes"
+# --- SISTEMA DE PESTAÑAS (Corregido: 5 pestañas para 5 bloques) ---
+tab_spot, tab_ytm, tab_apple, tab_deezer, tab_social = st.tabs([
+    "🎧 Spotify", "🎵 YouTube Music", "🍎 Apple Music", "🔊 Deezer", "🔗 Redes"
 ])
 
 with tab_spot:
@@ -136,37 +136,25 @@ with tab_spot:
     with c1:
         st.markdown("**Top Diario Honduras**")
         df_hd = get_kworb_data("https://kworb.net/spotify/country/hn_daily.html", "spotifydaily")
-        # Se usa st.dataframe para renderizar la tabla con los estilos CSS.
-        st.dataframe(df_hd, hide_index=True)
+        st.table(style_df(df_hd))
     with c2:
         st.markdown("**Top Semanal Honduras**")
         df_hw = get_kworb_data("https://kworb.net/spotify/country/hn_weekly.html", "spotifyweekly")
-        st.dataframe(df_hw, hide_index=True)
+        st.table(style_df(df_hw))
 
 with tab_ytm:
-    # --- TU SECCIÓN DE YOUTUBE MUSIC EXACTA ---
     st.header("🎧 YouTube Music Honduras")
-
-    # 1. Configuración de Datos Manuales
     fecha_update_ytm = "8 de abril 2026"
-
-    # Datos para el Top Diario
     data_yt_diario = [
         {"Puesto": 57, "Mov": "🟥 -44", "Canción": "Hooligan - BTS"},
         {"Puesto": 72, "Mov": "🟥 -29", "Canción": "2.0 - BTS"}
     ]
-
-    # 2. Interfaz de la Sección
     st.write(f"Última actualización manual: **{fecha_update_ytm}**")
-
     col_manual_d, col_manual_w = st.columns(2)
-
     with col_manual_d:
         st.subheader("Top diario de canciones")
         df_yt_m_daily = pd.DataFrame(data_yt_diario)
-        # Se usa st.dataframe para renderizar la tabla con los estilos CSS.
-        st.dataframe(df_yt_m_daily, hide_index=True)
-
+        st.table(style_df(df_yt_m_daily))
     with col_manual_w:
         st.subheader("Top semanal de canciones")
         st.info("No hay entradas de BTS en el chart semanal para esta fecha.")
@@ -177,11 +165,11 @@ with tab_apple:
     with ca1:
         st.subheader("Honduras 🇭🇳")
         df_ah = get_simple_chart("https://kworb.net/charts/apple_s/hn.html")
-        st.dataframe(df_ah, hide_index=True)
+        st.table(style_df(df_ah))
     with ca2:
         st.subheader("Global 🌍")
         df_ag = get_simple_chart("https://kworb.net/apple_songs/")
-        st.dataframe(df_ag, hide_index=True)
+        st.table(style_df(df_ag))
 
 with tab_deezer:
     st.header("🔊 Deezer Charts")
@@ -189,20 +177,13 @@ with tab_deezer:
     with cd1:
         st.subheader("Honduras 🇭🇳")
         df_dh = get_simple_chart("https://kworb.net/charts/deezer/hn.html")
-        st.dataframe(df_dh, hide_index=True)
+        st.table(style_df(df_dh))
     with cd2:
         st.subheader("Global 🌍")
         df_dg = get_simple_chart("https://kworb.net/charts/deezer/ww.html")
-        st.dataframe(df_dg, hide_index=True)
-
-with tab_yt:
-    # Asegúrate de rellenar la lógica de YouTube aquí.
-    # Por ahora, se mantiene la estructura vacía para evitar errores.
-    st.header("📺 YouTube Video Charts")
-    st.info("Lógica de YouTube por implementar.")
+        st.table(style_df(df_dg))
 
 with tab_social:
-    # --- REDES SOCIALES ---
     left, right = st.columns(2)
     with left:
         st.markdown("### Plataformas de Streaming Oficiales")
