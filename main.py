@@ -87,9 +87,9 @@ def get_simple_chart(url):
 st.title("💜 BTS Charts Honduras")
 st.write(f"Actualizado el: {datetime.now().strftime('%d/%m/%Y')}")
 
-# --- SISTEMA DE PESTAÑAS ---
-tab_spot, tab_ytm, tab_apple, tab_deezer, tab_yt, tab_social = st.tabs([
-    "🎧 Spotify", "🎵 YouTube Music", "🍎 Apple Music", "🔊 Deezer", "📺 YouTube", "🔗 Redes"
+# --- SISTEMA DE PESTAÑAS (Corregido: 5 pestañas para 5 bloques) ---
+tab_spot, tab_ytm, tab_apple, tab_deezer, tab_social = st.tabs([
+    "🎧 Spotify", "🎵 YouTube Music", "🍎 Apple Music", "🔊 Deezer", "🔗 Redes"
 ])
 
 with tab_spot:
