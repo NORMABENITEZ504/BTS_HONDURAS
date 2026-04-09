@@ -123,4 +123,77 @@ with tab_spot:
     c1, c2 = st.columns(2)
     with c1:
         st.markdown("**Top Diario Honduras**")
-        df_
+        df_hd = get_kworb_data("https://kworb.net/spotify/country/hn_daily.html", "spotifydaily")
+        st.table(style_df(df_hd))
+    with c2:
+        st.markdown("**Top Semanal Honduras**")
+        df_hw = get_kworb_data("https://kworb.net/spotify/country/hn_weekly.html", "spotifyweekly")
+        st.table(style_df(df_hw))
+    
+    st.divider()
+    
+    # GLOBAL SEGUNDO
+    st.subheader("Global 🌍")
+    c3, c4 = st.columns(2)
+    with c3:
+        st.markdown("**Top Diario Global**")
+        df_gd = get_kworb_data("https://kworb.net/spotify/country/global_daily.html", "spotifydaily")
+        st.table(style_df(df_gd))
+    with c4:
+        st.markdown("**Top Semanal Global**")
+        df_gw = get_kworb_data("https://kworb.net/spotify/country/global_weekly.html", "spotifyweekly")
+        st.table(style_df(df_gw))
+
+with tab_apple:
+    st.header("🍎 Apple Music Charts")
+    ca1, ca2 = st.columns(2)
+    with ca1:
+        st.subheader("Honduras 🇭🇳")
+        df_ah = get_simple_chart("https://kworb.net/charts/apple_s/hn.html")
+        st.table(style_df(df_ah))
+    with ca2:
+        st.subheader("Global 🌍")
+        df_ag = get_simple_chart("https://kworb.net/apple_songs/")
+        st.table(style_df(df_ag))
+
+with tab_deezer:
+    st.header("🎵 Deezer Charts")
+    cd1, cd2 = st.columns(2)
+    with cd1:
+        st.subheader("Honduras 🇭🇳")
+        df_dh = get_simple_chart("https://kworb.net/charts/deezer/hn.html")
+        st.table(style_df(df_dh))
+    with cd2:
+        st.subheader("Global 🌍")
+        df_dg = get_simple_chart("https://kworb.net/charts/deezer/ww.html")
+        st.table(style_df(df_dg))
+
+with tab_yt:
+    st.header("📺 YouTube Charts Honduras")
+    c_yt1, c_yt2 = st.columns(2)
+    with c_yt1:
+        st.info("🕒 **Actualización Diaria**")
+        st.link_button("🔥 VER TOP DIARIO", "https://charts.youtube.com/charts/TopVideos/hn/daily", use_container_width=True)
+    with c_yt2:
+        st.success("📅 **Resumen Semanal**")
+        st.link_button("👑 VER TOP SEMANAL", "https://charts.youtube.com/charts/TopVideos/hn/weekly", use_container_width=True)
+
+with tab_social:
+    # --- REDES SOCIALES RESTAURADAS ---
+    left, right = st.columns(2)
+    with left:
+        st.markdown("### Plataformas de Streaming Oficiales")
+        st.markdown("- [Spotify: BTS](https://open.spotify.com/artist/3Nrfpe0tUJi4K4DXYWgMUX)")
+        st.markdown("- [YouTube: BANGTANTV](https://www.youtube.com/@BANGTANTV)")
+        st.markdown("- [Apple Music: BTS](https://music.apple.com/artist/bts/667061285)")
+        st.markdown("- [Deezer: BTS](https://www.deezer.com/artist/4105021)")
+        st.write("**Spotify Solistas:** [JK](https://open.spotify.com/intl-es/artist/6HaGTQPmzraVmaVxvz6EUc) | [Jimin](https://open.spotify.com/intl-es/artist/1oSPZhvZMIrWW5I41kPkkY) | [V](https://open.spotify.com/artist/3JsHnjpbhX4SnySpvpa9DK) | [RM](https://open.spotify.com/intl-es/artist/2auC28zjQyVTsiZKNgPRGs) | [Jin](https://open.spotify.com/artist/5vV3bFXnN6D6N3Nj4xRvaV) | [Suga](https://open.spotify.com/intl-es/artist/5RmQ8k4l3HZ8JoPb4mNsML) | [j-hope](https://open.spotify.com/artist/0b1sIQumIAsNbqAoIClSpy)")
+    with right:
+        st.markdown("### Redes Sociales")
+        st.markdown("- [Instagram: @bts.bighitofficial](https://www.instagram.com/bts.bighitofficial)")
+        st.markdown("- [X (Twitter): @bts_bighit](https://x.com/bts_bighit)")
+        st.markdown("- [TikTok: @bts_official_bighit](https://www.tiktok.com/@bts_official_bighit)")
+        st.write("**Instagram Miembros:**")
+        st.caption("[RM](https://www.instagram.com/rkive) | [Jin](https://www.instagram.com/jin) | [SUGA](https://www.instagram.com/agustd) | [j-hope](https://www.instagram.com/uarmyhope) | [Jimin](https://www.instagram.com/j.m) | [V](https://www.instagram.com/thv) | [JK](https://www.instagram.com/mnijungkook)")
+
+st.markdown('<p style="text-align: left; color: #7D52B5; margin-top: 50px;">Hecho con amor para ARMY Honduras 💜</p>', unsafe_allow_html=True)
