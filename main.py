@@ -21,7 +21,7 @@ def get_base64(bin_file):
 image_path = 'BTSLOGO.png' 
 bin_str = get_base64(image_path)
 
-# --- ESTILOS CSS PERSONALIZADOS (Azul #004aad y Fondos Blancos) ---
+# --- ESTILOS CSS PERSONALIZADOS ---
 if bin_str:
     st.markdown(f'''
     <style>
@@ -32,21 +32,31 @@ if bin_str:
         background-attachment: fixed;
     }}
 
-    /* --- ESTILO PARA LAS PESTAÑAS (TABS) --- */
+    /* --- ESPACIADO Y ESTILO DE PESTAÑAS --- */
+    .stTabs {{
+        margin-top: 30px !important; /* Espacio arriba de las pestañas */
+        margin-bottom: 30px !important; /* Espacio abajo de las pestañas */
+    }}
+
     .stTabs [data-baseweb="tab-list"] {{
         background-color: rgba(255, 255, 255, 0.85) !important;
         padding: 10px !important;
         border-radius: 15px 15px 0px 0px !important;
-        border-bottom: 3px solid #004aad !important; /* Línea azul opaco */
+        border-bottom: 3px solid #004aad !important;
     }}
     
     .stTabs [data-baseweb="tab-list"] button p {{
-        color: #004aad !important; /* Texto de pestañas en azul opaco */
+        color: #004aad !important;
         font-weight: bold !important;
         font-size: 1.1rem !important;
     }}
 
-    /* --- TABLAS CELESTES --- */
+    /* --- ESTILO DE TABLAS --- */
+    [data-testid="stDataFrame"] {{
+        margin-top: 20px !important; /* Espacio arriba de cada tabla */
+        margin-bottom: 40px !important; /* Espacio abajo de cada tabla */
+    }}
+
     [data-testid="stDataFrame"] td {{
         background-color: rgba(173, 216, 230, 0.7) !important;
         color: #000000 !important;
@@ -55,18 +65,20 @@ if bin_str:
 
     [data-testid="stDataFrame"] th {{
         background-color: rgba(173, 216, 230, 0.5) !important;
-        color: #004aad !important; /* Encabezados en azul opaco */
+        color: #004aad !important;
     }}
 
-    /* --- TÍTULOS Y SUBTÍTULOS EN AZUL OPACO CON FONDO BLANCO --- */
+    /* --- TÍTULOS Y SUBTÍTULOS CON MÁRGENES --- */
     h1, h2, h3, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {{
         background-color: rgba(255, 255, 255, 0.85) !important;
-        color: #004aad !important; /* LETRAS EN AZUL #004aad */
+        color: #004aad !important;
         padding: 12px 25px !important;
         border-radius: 12px !important;
         display: inline-block !important;
         border-left: 5px solid #004aad !important;
         font-weight: bold !important;
+        margin-bottom: 25px !important; /* ESPACIO DEBAJO DE TÍTULOS */
+        margin-top: 15px !important; /* ESPACIO ARRIBA DE TÍTULOS */
         box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
     }}
 
@@ -76,17 +88,7 @@ if bin_str:
         padding: 25px !important;
         border-radius: 15px !important;
         border: 1px solid #004aad !important;
-    }}
-
-    /* Texto y enlaces en Redes */
-    [data-testid="stVerticalBlock"] [data-testid="stColumn"] * {{
-        color: #000000 !important;
-    }}
-    
-    [data-testid="stVerticalBlock"] [data-testid="stColumn"] a {{
-        color: #004aad !important; /* Enlaces en azul opaco */
-        text-decoration: underline !important;
-        font-weight: bold !important;
+        margin-top: 20px !important;
     }}
 
     /* Pie de página */
@@ -97,6 +99,7 @@ if bin_str:
         border-radius: 10px !important;
         display: inline-block !important;
         border: 1px solid #004aad !important;
+        margin-top: 50px !important;
     }}
     </style>
     ''', unsafe_allow_html=True)
