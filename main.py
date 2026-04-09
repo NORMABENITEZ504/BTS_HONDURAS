@@ -21,7 +21,7 @@ def get_base64(bin_file):
 image_path = 'BTSLOGO.png' 
 bin_str = get_base64(image_path)
 
-# --- ESTILOS CSS PERSONALIZADOS (Letras Azules y Fondos Blancos) ---
+# --- ESTILOS CSS PERSONALIZADOS (Azul #004aad y Fondos Blancos) ---
 if bin_str:
     st.markdown(f'''
     <style>
@@ -34,15 +34,16 @@ if bin_str:
 
     /* --- ESTILO PARA LAS PESTAÑAS (TABS) --- */
     .stTabs [data-baseweb="tab-list"] {{
-        background-color: rgba(255, 255, 255, 0.8) !important;
+        background-color: rgba(255, 255, 255, 0.85) !important;
         padding: 10px !important;
         border-radius: 15px 15px 0px 0px !important;
-        border-bottom: 2px solid #0000FF !important; /* Línea azul */
+        border-bottom: 3px solid #004aad !important; /* Línea azul opaco */
     }}
     
     .stTabs [data-baseweb="tab-list"] button p {{
-        color: #0000FF !important; /* Texto de pestañas en azul */
+        color: #004aad !important; /* Texto de pestañas en azul opaco */
         font-weight: bold !important;
+        font-size: 1.1rem !important;
     }}
 
     /* --- TABLAS CELESTES --- */
@@ -54,26 +55,27 @@ if bin_str:
 
     [data-testid="stDataFrame"] th {{
         background-color: rgba(173, 216, 230, 0.5) !important;
-        color: #0000FF !important; /* Encabezados de tabla en azul */
+        color: #004aad !important; /* Encabezados en azul opaco */
     }}
 
-    /* --- TÍTULOS Y SUBTÍTULOS EN AZUL CON FONDO BLANCO --- */
+    /* --- TÍTULOS Y SUBTÍTULOS EN AZUL OPACO CON FONDO BLANCO --- */
     h1, h2, h3, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {{
-        background-color: rgba(255, 255, 255, 0.8) !important;
-        color: #0000FF !important; /* LETRAS EN AZUL */
-        padding: 10px 20px !important;
-        border-radius: 10px !important;
+        background-color: rgba(255, 255, 255, 0.85) !important;
+        color: #004aad !important; /* LETRAS EN AZUL #004aad */
+        padding: 12px 25px !important;
+        border-radius: 12px !important;
         display: inline-block !important;
-        border: 1px solid #0000FF !important;
+        border-left: 5px solid #004aad !important;
         font-weight: bold !important;
+        box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
     }}
 
     /* --- SECCIÓN DE REDES SOCIALES --- */
     [data-testid="stVerticalBlock"] [data-testid="stColumn"] {{
-        background-color: rgba(255, 255, 255, 0.8) !important;
-        padding: 20px !important;
+        background-color: rgba(255, 255, 255, 0.85) !important;
+        padding: 25px !important;
         border-radius: 15px !important;
-        border: 1px solid #0000FF !important;
+        border: 1px solid #004aad !important;
     }}
 
     /* Texto y enlaces en Redes */
@@ -82,18 +84,19 @@ if bin_str:
     }}
     
     [data-testid="stVerticalBlock"] [data-testid="stColumn"] a {{
-        color: #0000FF !important; /* Enlaces en azul */
+        color: #004aad !important; /* Enlaces en azul opaco */
         text-decoration: underline !important;
         font-weight: bold !important;
     }}
 
     /* Pie de página */
     .stMarkdown p[style*="text-align: center"] {{
-        background-color: rgba(255, 255, 255, 0.8) !important;
-        color: #0000FF !important;
-        padding: 10px !important;
+        background-color: rgba(255, 255, 255, 0.85) !important;
+        color: #004aad !important;
+        padding: 10px 20px !important;
         border-radius: 10px !important;
         display: inline-block !important;
+        border: 1px solid #004aad !important;
     }}
     </style>
     ''', unsafe_allow_html=True)
@@ -242,4 +245,4 @@ with tab_social:
         st.write("**Instagram Miembros:**")
         st.caption("[RM](https://www.instagram.com/rkive) | [Jin](https://www.instagram.com/jin) | [SUGA](https://www.instagram.com/agustd) | [j-hope](https://www.instagram.com/uarmyhope) | [Jimin](https://www.instagram.com/j.m) | [V](https://www.instagram.com/thv) | [JK](https://www.instagram.com/mnijungkook)")
 
-st.markdown('<p style="text-align: center; color: #0000FF; margin-top: 50px;">Hecho con amor para ARMY Honduras 💜</p>', unsafe_allow_html=True)
+st.markdown('<p style="text-align: center; color: #004aad; margin-top: 50px;">Hecho con amor para ARMY Honduras 💜</p>', unsafe_allow_html=True)
