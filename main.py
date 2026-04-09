@@ -106,28 +106,18 @@ with tab_spot:
         st.table(style_df(df_hw))
 
 with tab_ytm:
-    # --- TU SECCIÓN DE YOUTUBE MUSIC EXACTA ---
     st.header("🎧 YouTube Music Honduras")
-
-    # 1. Configuración de Datos Manuales
     fecha_update_ytm = "8 de abril 2026"
-
-    # Datos para el Top Diario
     data_yt_diario = [
         {"Puesto": 57, "Mov": "🟥 -44", "Canción": "Hooligan - BTS"},
         {"Puesto": 72, "Mov": "🟥 -29", "Canción": "2.0 - BTS"}
     ]
-
-    # 2. Interfaz de la Sección
     st.write(f"Última actualización manual: **{fecha_update_ytm}**")
-
     col_manual_d, col_manual_w = st.columns(2)
-
     with col_manual_d:
         st.subheader("Top diario de canciones")
         df_yt_m_daily = pd.DataFrame(data_yt_diario)
         st.table(style_df(df_yt_m_daily))
-
     with col_manual_w:
         st.subheader("Top semanal de canciones")
         st.info("No hay entradas de BTS en el chart semanal para esta fecha.")
@@ -157,34 +147,15 @@ with tab_deezer:
         st.table(style_df(df_dg))
 
 with tab_yt:
-    # 1. Configuración de Datos Manuales
-
-# Esta fecha es independiente al resto del dashboard
-
-fecha_update_ytm = "8 de abril 2026"
     st.header("📺 YouTube Charts Honduras")
+    st.write("Debido a restricciones de acceso, usa los enlaces oficiales:")
     c_y1, c_y2 = st.columns(2)
-   # 2. Interfaz de la Sección
-st.write(f"Última actualización manual: **{fecha_update_ytm}**")
-
-col_manual_d, col_manual_w = st.columns(2)
-
-with col_manual_d:
-    st.subheader("Top diario de canciones")
-    df_yt_m_daily = pd.DataFrame(data_yt_diario)
-    # Usamos tu función de estilo morado claro
-    st.table(style_df(df_yt_m_daily))
-
-with col_manual_w:
-    st.subheader("Top semanal de canciones")
-    # Mensaje por si no hay entradas esa semana
-    st.info("No hay entradas de BTS en el chart semanal para esta fecha.")
-
-st.caption("Nota: Estos datos se ingresan manualmente debido a las restricciones de conexión de YouTube.")
-st.divider()
+    with c_y1:
+        st.link_button("🔥 VER TOP DIARIO", "https://charts.youtube.com/charts/TopVideos/hn/daily", use_container_width=True)
+    with c_y2:
+        st.link_button("👑 VER TOP SEMANAL", "https://charts.youtube.com/charts/TopVideos/hn/weekly", use_container_width=True)
 
 with tab_social:
-    # --- REDES SOCIALES ---
     left, right = st.columns(2)
     with left:
         st.markdown("### Plataformas de Streaming Oficiales")
