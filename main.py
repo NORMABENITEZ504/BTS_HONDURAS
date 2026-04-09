@@ -276,35 +276,31 @@ with col_gl:
     else:
         st.info("Sin datos Globales.")
 
-# --- SECCIÓN YOUTUBE CHARTS HONDURAS ---
+# --- SECCIÓN YOUTUBE (ÚLTIMO INTENTO VISUAL) ---
 st.header("📺 YouTube Charts Honduras")
 
-# Creamos un contenedor con estilo morado
-with st.container():
-    st.markdown("""
-        <div style="background-color: #F3E5F5; padding: 20px; border-radius: 15px; border-left: 5px solid #7D52B5;">
-            <h4 style="color: #7D52B5; margin-top: 0;">¡Acceso Directo a los Charts Oficiales!</h4>
-            <p style="color: #4A148C;">YouTube no permite mostrar sus gráficos directamente aquí por seguridad, 
-            pero puedes ver los datos actualizados al segundo haciendo clic abajo:</p>
+# Intentamos cargar el sitio a través de un componente que engaña un poco al bloqueo
+# Si esto falla, lo mejor es el diseño de "Tarjetas Informativas" que te pasé antes
+try:
+    st.components.v1.html(
+        """
+        <div style="width: 100%; height: 600px; overflow: hidden; border-radius: 15px; border: 2px solid #7D52B5;">
+            <iframe 
+                src="https://charts.youtube.com/charts/TopVideos/hn/daily" 
+                width="100%" 
+                height="600" 
+                style="border:none; margin-top: -50px;"
+                sandbox="allow-scripts allow-same-origin allow-popups"
+            ></iframe>
         </div>
-        <br>
-    """, unsafe_allow_html=True)
+        """,
+        height=600,
+    )
+except:
+    st.error("YouTube sigue bloqueando la visualización directa por políticas de seguridad.")
 
-    col_yt1, col_yt2 = st.columns(2)
+st.info("💡 Tip: Si ves el cuadro gris, es porque Google detecta que estás en una app externa. Haz clic en los botones de abajo para ver la fuente real.")
 
-    with col_yt1:
-        # Una "tarjeta" visual para el diario
-        st.subheader("🔥 Top Diario")
-        st.write("Mira qué videos están siendo tendencia hoy en Honduras.")
-        st.link_button("Abrir YouTube Daily ↗️", "https://charts.youtube.com/charts/TopVideos/hn/daily", use_container_width=True)
-
-    with col_yt2:
-        # Una "tarjeta" visual para el semanal
-        st.subheader("📊 Top Semanal")
-        st.write("Revisa el acumulado de reproducciones de la semana.")
-        st.link_button("Abrir YouTube Weekly ↗️", "https://charts.youtube.com/charts/TopVideos/hn/weekly", use_container_width=True)
-
-st.divider()
     
 # --- SECCIÓN REDES SOCIALES (RESTAURADA EXACTAMENTE COMO LA QUERÍAS) ---
 left, right = st.columns(2)
