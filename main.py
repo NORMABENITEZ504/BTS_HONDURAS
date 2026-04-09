@@ -177,7 +177,7 @@ with tab_social:
     left, right = st.columns(2)
 
     with left:
-        st.markdown("### Perfiles Oficiales")
+        st.markdown("### Plataformas de Streaming Oficiales")
         st.markdown("- [Spotify: BTS](https://open.spotify.com/artist/3Nrfpe0tUJi4K4DXYWgMUX)")
         st.markdown("- [YouTube: BANGTANTV](https://www.youtube.com/@BANGTANTV)")
         st.markdown("- [Apple Music: BTS](https://music.apple.com/artist/bts/667061285)")
