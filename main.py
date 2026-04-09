@@ -19,41 +19,31 @@ def get_base64(bin_file):
 
 # Ruta de tu imagen cargada
 image_path = 'BTSLOGO.png' 
-
-# --- ESTILOS CSS PERSONALIZADOS (Celeste Transparente) ---
 bin_str = get_base64(image_path)
+
+# --- ESTILOS CSS (Fondo + Tablas Celestes Transparentes) ---
 if bin_str:
-    page_bg_img = f'''
+    st.markdown(f'''
     <style>
     .stApp {{
         background-image: url("data:image/png;base64,{bin_str}");
         background-size: repeat;
         background-attachment: fixed;
     }}
-
-    /* Fondo de las celdas (Celeste 70% transparente) */
-    [data-testid="stTable"] td, [data-testid="stDataFrame"] td {{
+    /* Encabezados: Celeste 50% transparencia */
+    [data-testid="stDataFrame"] th {{
+        background-color: rgba(173, 216, 230, 0.5) !important;
+        color: #4A148C !important;
+    }}
+    /* Celdas: Celeste 70% transparencia */
+    [data-testid="stDataFrame"] td {{
         background-color: rgba(173, 216, 230, 0.7) !important;
         color: #000000 !important;
         font-weight: bold;
     }}
-
-    /* Fondo de encabezados (Celeste 50% transparente) */
-    [data-testid="stTable"] th, [data-testid="stDataFrame"] th {{
-        background-color: rgba(173, 216, 230, 0.5) !important;
-        color: #4A148C !important;
-    }}
-
-    h1, h2, h3 {{
-        color: #7D52B5 !important;
-    }}
+    h1, h2, h3 {{ color: #7D52B5 !important; }}
     </style>
-    '''
-    st.markdown(page_bg_img, unsafe_allow_html=True)
-
-# --- FUNCIÓN style_df ---
-def style_df(df):
-    return df # El CSS de arriba ya aplica los colores celestes
+    ''', unsafe_allow_html=True)
 
 # --- VARIABLES Y FUNCIONES DE DATOS ---
 solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
@@ -120,6 +110,8 @@ tab_spot, tab_ytm, tab_apple, tab_deezer, tab_social = st.tabs([
 
 with tab_spot:
     st.header("📊 Spotify Charts")
+    
+    # SECCIÓN HONDURAS
     st.subheader("Honduras 🇭🇳")
     c1, c2 = st.columns(2)
     with c1:
@@ -131,14 +123,28 @@ with tab_spot:
         df_hw = get_kworb_data("https://kworb.net/spotify/country/hn_weekly.html", "spotifyweekly")
         st.dataframe(df_hw, hide_index=True, use_container_width=True)
 
+    st.divider()
+
+    # SECCIÓN GLOBAL (RESTAURADA)
+    st.subheader("Global 🌍")
+    c3, c4 = st.columns(2)
+    with c3:
+        st.markdown("**Top Diario Global**")
+        df_gd = get_kworb_data("https://kworb.net/spotify/country/global_daily.html", "spotifydaily")
+        st.dataframe(df_gd, hide_index=True, use_container_width=True)
+    with c4:
+        st.markdown("**Top Semanal Global**")
+        df_gw = get_kworb_data("https://kworb.net/spotify/country/global_weekly.html", "spotifyweekly")
+        st.dataframe(df_gw, hide_index=True, use_container_width=True)
+
 with tab_ytm:
     st.header("🎧 YouTube Music Honduras")
     fecha_update_ytm = "8 de abril 2026"
+    st.write(f"Última actualización: **{fecha_update_ytm}**")
     data_yt_diario = [
         {"Puesto": 57, "Mov": "🟥 -44", "Canción": "Hooligan - BTS"},
         {"Puesto": 72, "Mov": "🟥 -29", "Canción": "2.0 - BTS"}
     ]
-    st.write(f"Última actualización manual: **{fecha_update_ytm}**")
     col_manual_d, col_manual_w = st.columns(2)
     with col_manual_d:
         st.subheader("Top diario de canciones")
@@ -186,4 +192,4 @@ with tab_social:
         st.write("**Instagram Miembros:**")
         st.caption("[RM](https://www.instagram.com/rkive) | [Jin](https://www.instagram.com/jin) | [SUGA](https://www.instagram.com/agustd) | [j-hope](https://www.instagram.com/uarmyhope) | [Jimin](https://www.instagram.com/j.m) | [V](https://www.instagram.com/thv) | [JK](https://www.instagram.com/mnijungkook)")
 
-st.markdown('<p style="text-align: center; color: #7D52B5; margin-top: 50px;">Hecho con amor para ARMY Honduras💜</p>', unsafe_allow_html=True)
+st.markdown('<p style="text-align: center; color: #7D52B5; margin-top: 50px;">Hecho con amor para ARMY Honduras 💜</p>', unsafe_allow_html=True)
