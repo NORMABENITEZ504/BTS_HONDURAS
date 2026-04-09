@@ -160,7 +160,7 @@ with tab_social:
     left, right = st.columns(2)
 
     with left:
-        st.markdown("### Perfiles Oficiales")
+        st.markdown("### Plataformas de Streaming Oficiales")
         st.markdown("- [Spotify: BTS](https://open.spotify.com/artist/3Nrfpe0tUJi4K4DXYWgMUX)")
         st.markdown("- [YouTube: BANGTANTV](https://www.youtube.com/@BANGTANTV)")
         st.markdown("- [Apple Music: BTS](https://music.apple.com/artist/bts/667061285)")
@@ -175,4 +175,4 @@ with tab_social:
         st.write("**Instagram Miembros:**")
         st.caption("[RM](https://www.instagram.com/rkive) | [Jin](https://www.instagram.com/jin) | [SUGA](https://www.instagram.com/agustd) | [j-hope](https://www.instagram.com/uarmyhope) | [Jimin](https://www.instagram.com/j.m) | [V](https://www.instagram.com/thv) | [JK](https://www.instagram.com/mnijungkook)")
 
-st.markdown('<p style="text-align: center; color: #7D52B5; margin-top: 50px;">Hecho con 💜 para ARMY Honduras</p>', unsafe_allow_html=True)
+st.markdown('<p style="text-align: center; color: #7D52B5; margin-top: 50px;">Hecho con amor para ARMY Honduras💜</p>', unsafe_allow_html=True)
