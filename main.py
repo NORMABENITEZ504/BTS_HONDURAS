@@ -5,79 +5,48 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 
 # --- CONFIGURACIÓN DE LA PÁGINA ---
-st.set_page_config(page_title="BTS Charts Honduras🇭🇳", page_icon="💜", layout="wide")
+st.set_page_config(page_title="BTS Charts Honduras 🇭🇳", page_icon="💜", layout="wide")
 
-# Artistas permitidos
+# --- ESTILOS CSS PERSONALIZADOS (Color ARMY) ---
+st.markdown("""
+    <style>
+    /* Color de títulos y acentos */
+    h1, h2, h3 {
+        color: #7D52B5 !important;
+        font-family: 'Trebuchet MS', sans-serif;
+    }
+    /* Estilo de las tarjetas de métricas */
+    div[data-testid="stMetricValue"] {
+        color: #7D52B5;
+    }
+    /* Líneas divisorias moradas */
+    hr {
+        border-top: 2px solid #7D52B5;
+    }
+    /* Bordes de tablas y contenedores */
+    .stDataFrame {
+        border: 1px solid #7D52B5;
+        border-radius: 10px;
+    }
+    /* Estilo para los tabs */
+    .stTabs [data-baseweb="tab-list"] button [data-testid="stMarkdownContainer"] p {
+        font-size: 1.1rem;
+        font-weight: bold;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+# --- VARIABLES Y FUNCIONES ---
 solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
 
 def icon_mov(val):
-    if val == "=": return "➡️ ="
+    val = str(val).strip()
+    if val == "=" or val == "0" or val == "": return "➡️ ="
     if "+" in val: return f"🟩 {val}"
     if "-" in val: return f"🟥 {val}"
     return f"🔵 {val}"
 
-def get_kworb_data(url, table_id):
-    headers = {'User-Agent': 'Mozilla/5.0'}
-    try:
-        response = requests.get(url, headers=headers)
-        response.encoding = 'utf-8'
-        soup = BeautifulSoup(response.text, 'html.parser')
-        table = soup.find('table', {'id': table_id})
-        
-        if not table: return pd.DataFrame()
-
-        rows = []
-        for tr in table.find_all('tr')[1:]:
-            cols = tr.find_all('td')
-            if len(cols) < 3: continue
-            
-            full_text = cols[2].get_text(separator=" ").strip()
-            parts = full_text.split(" - ")
-            artist_name = parts[0].strip().upper() 
-            
-            if any(member == artist_name for member in solo_bts):
-                rows.append({
-                    'Puesto': int(cols[0].text.strip()),
-                    'Mov': icon_mov(cols[1].text.strip()),
-                    'Canción': full_text,
-                    'Streams Totales': cols[6].text.strip(),
-                    'Evolución': cols[7].text.strip()
-                })
-        return pd.DataFrame(rows)
-    except:
-        return pd.DataFrame()
-
-# --- INTERFAZ ---
-st.title("BTS Charts Honduras")
-st.write(f"Actualizado el: {datetime.now().strftime('%d/%m/%Y')}")
-
-# --- SECCIÓN SPOTIFY ---
-st.header("📊 Spotify Charts Honduras")
-col1, col2 = st.columns(2)
-
-with col1:
-    st.subheader("Spotify: Top Daily Songs")
-    df_daily = get_kworb_data("https://kworb.net/spotify/country/hn_daily.html", "spotifydaily")
-    if not df_daily.empty:
-        st.dataframe(df_daily.sort_values('Puesto'), hide_index=True, use_container_width=True)
-    else:
-        st.info("No hay canciones de BTS en el Top Diario hoy.")
-
-with col2:
-    st.subheader("Spotify: Top Weekly Songs")
-    df_weekly = get_kworb_data("https://kworb.net/spotify/country/hn_weekly.html", "spotifyweekly")
-    if not df_weekly.empty:
-        st.dataframe(df_weekly.sort_values('Puesto'), hide_index=True, use_container_width=True)
-    else:
-        st.info("No hay canciones de BTS en el Top Semanal.")
-
-st.divider()
-
-# --- SECCIÓN SPOTIFY GLOBAL (2 COLUMNAS) ---
-st.header("🌍 Spotify Charts: Global")
-
-# 1. Definimos la función limpia (Solo Puesto, Mov, Canción, Streams y Evolución)
-def get_global_data(url, table_id):
+def get_kworb_data(url, table_id, is_global=False):
     headers = {'User-Agent': 'Mozilla/5.0'}
     try:
         response = requests.get(url, headers=headers, timeout=10)
@@ -85,60 +54,25 @@ def get_global_data(url, table_id):
         soup = BeautifulSoup(response.text, 'html.parser')
         table = soup.find('table', {'id': table_id})
         if not table: return pd.DataFrame()
-
         rows = []
-        solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
         for tr in table.find_all('tr')[1:]:
             cols = tr.find_all('td')
-            # Verificamos que existan las columnas hasta la Evolución (col 7)
-            if len(cols) < 8: continue 
-            
+            if len(cols) < 8: continue
             full_text = cols[2].get_text(separator=" ").strip()
-            parts = full_text.split(" - ")
-            artist_name = parts[0].strip().upper() 
-            
+            artist_name = full_text.split(" - ")[0].strip().upper()
             if any(member == artist_name for member in solo_bts):
-                rows.append({
+                data = {
                     'Puesto': int(cols[0].text.strip()),
-                    'Mov': icon_mov(cols[1].text.strip()), 
+                    'Mov': icon_mov(cols[1].text.strip()),
                     'Canción': full_text,
-                    'Streams': cols[6].text.strip(),    # Columna de reproducciones (diarias o semanales)
-                    'Evolución': cols[7].text.strip()   # Columna de +/-
-                })
+                    'Streams': cols[6].text.strip(),
+                    'Evolución': cols[7].text.strip()
+                }
+                rows.append(data)
         return pd.DataFrame(rows)
-    except:
-        return pd.DataFrame()
+    except: return pd.DataFrame()
 
-# 2. Creamos las columnas y mostramos los datos
-col_glob_d, col_glob_w = st.columns(2)
-
-with col_glob_d:
-    st.subheader("Spotify: Top Daily Songs")
-    df_glob_d = get_global_data("https://kworb.net/spotify/country/global_daily.html", "spotifydaily")
-    if not df_glob_d.empty:
-        st.dataframe(df_glob_d.sort_values('Puesto'), hide_index=True, use_container_width=True)
-    else:
-        st.info("No hay canciones de BTS en el Top Diario Global.")
-
-with col_glob_w:
-    st.subheader("Spotify: Top Weekly Songs")
-    df_glob_w = get_global_data("https://kworb.net/spotify/country/global_weekly.html", "spotifyweekly")
-    if not df_glob_w.empty:
-        st.dataframe(df_glob_w.sort_values('Puesto'), hide_index=True, use_container_width=True)
-    else:
-        st.info("No hay canciones de BTS en el Top Semanal Global.")
-
-st.divider()# --- 1. FUNCIÓN DE ICONOS (Poner esto arriba para que no dé NameError) ---
-def icon_mov_simple(val):
-    val = str(val).strip()
-    if val == "=" or val == "0" or val == "": return "➡️ ="
-    if "+" in val: return f"🟩 {val}"
-    if "-" in val: return f"🟥 {val}"
-    return f"🔵 {val}"
-
-# --- 2. FUNCIONES DE EXTRACCIÓN PARA APPLE MUSIC ---
-def get_apple_hn():
-    url = "https://kworb.net/charts/apple_s/hn.html"
+def get_simple_chart(url):
     headers = {'User-Agent': 'Mozilla/5.0'}
     try:
         response = requests.get(url, headers=headers, timeout=15)
@@ -147,172 +81,108 @@ def get_apple_hn():
         table = soup.find('table')
         if not table: return pd.DataFrame()
         rows = []
-        solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
         for tr in table.find_all('tr')[1:]:
             cols = tr.find_all('td')
             if len(cols) < 3: continue
             full_text = cols[2].get_text(separator=" ").strip()
             artist_name = full_text.split(" - ")[0].strip().upper()
             if any(member == artist_name for member in solo_bts):
-                rows.append({'Puesto': int(cols[0].text.strip()), 'Mov': cols[1].text.strip(), 'Canción': full_text})
+                rows.append({'Puesto': int(cols[0].text.strip()), 'Mov': icon_mov(cols[1].text.strip()), 'Canción': full_text})
         return pd.DataFrame(rows)
     except: return pd.DataFrame()
 
-def get_apple_global():
-    url = "https://kworb.net/apple_songs/"
-    headers = {'User-Agent': 'Mozilla/5.0'}
-    try:
-        response = requests.get(url, headers=headers, timeout=15)
-        response.encoding = 'utf-8'
-        soup = BeautifulSoup(response.text, 'html.parser')
-        table = soup.find('table')
-        if not table: return pd.DataFrame()
-        rows = []
-        solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
-        for tr in table.find_all('tr')[1:]:
-            cols = tr.find_all('td')
-            if len(cols) < 3: continue
-            full_text = cols[2].get_text(separator=" ").strip()
-            artist_name = full_text.split(" - ")[0].strip().upper()
-            if any(member == artist_name for member in solo_bts):
-                rows.append({'Puesto': int(cols[0].text.strip()), 'Mov': cols[1].text.strip(), 'Canción': full_text})
-        return pd.DataFrame(rows)
-    except: return pd.DataFrame()
+# --- CABECERA ---
+st.title("💜 BTS Charts Honduras")
+st.write(f"📊 **Reporte consolidado** | Actualizado: {datetime.now().strftime('%d/%m/%Y')}")
 
-# --- 3. INTERFAZ EN COLUMNAS ---
-st.header("🍎 Apple Music Charts")
+# --- SISTEMA DE PESTAÑAS (ORGANIZACIÓN TOP) ---
+tab_spot, tab_apple, tab_deezer, tab_yt, tab_social = st.tabs([
+    "🎧 Spotify", "🍎 Apple Music", "🎵 Deezer", "📺 YouTube", "🔗 Redes"
+])
 
-col_apple_hn, col_apple_gl = st.columns(2)
+with tab_spot:
+    st.header("🌍 Spotify Global vs Honduras 🇭🇳")
+    
+    # Global
+    st.subheader("Spotify Global")
+    c1, c2 = st.columns(2)
+    with c1:
+        st.markdown("**Top Diario Global**")
+        df_gd = get_kworb_data("https://kworb.net/spotify/country/global_daily.html", "spotifydaily")
+        st.dataframe(df_gd, hide_index=True, use_container_width=True)
+    with c2:
+        st.markdown("**Top Semanal Global**")
+        df_gw = get_kworb_data("https://kworb.net/spotify/country/global_weekly.html", "spotifyweekly")
+        st.dataframe(df_gw, hide_index=True, use_container_width=True)
+    
+    st.divider()
+    
+    # Honduras
+    st.subheader("Spotify Honduras")
+    c3, c4 = st.columns(2)
+    with c3:
+        st.markdown("**Top Diario HN**")
+        df_hd = get_kworb_data("https://kworb.net/spotify/country/hn_daily.html", "spotifydaily")
+        st.dataframe(df_hd, hide_index=True, use_container_width=True)
+    with c4:
+        st.markdown("**Top Semanal HN**")
+        df_hw = get_kworb_data("https://kworb.net/spotify/country/hn_weekly.html", "spotifyweekly")
+        st.dataframe(df_hw, hide_index=True, use_container_width=True)
 
-with col_apple_hn:
-    st.subheader("Honduras")
-    df_apple_hn = get_apple_hn()
-    if not df_apple_hn.empty:
-        # Ahora ya no dará error porque la función está definida arriba
-        df_apple_hn['Mov'] = df_apple_hn['Mov'].apply(icon_mov_simple)
-        st.dataframe(df_apple_hn.sort_values('Puesto'), hide_index=True, use_container_width=True)
-    else:
-        st.info("Sin datos en Apple Honduras.")
+with tab_apple:
+    st.header("🍎 Apple Music Charts")
+    ca1, ca2 = st.columns(2)
+    with ca1:
+        st.subheader("Honduras 🇭🇳")
+        df_ah = get_simple_chart("https://kworb.net/charts/apple_s/hn.html")
+        st.dataframe(df_ah, hide_index=True, use_container_width=True)
+    with ca2:
+        st.subheader("Global 🌍")
+        df_ag = get_simple_chart("https://kworb.net/apple_songs/")
+        st.dataframe(df_ag, hide_index=True, use_container_width=True)
 
-with col_apple_gl:
-    st.subheader("Global")
-    df_apple_gl = get_apple_global()
-    if not df_apple_gl.empty:
-        df_apple_gl['Mov'] = df_apple_gl['Mov'].apply(icon_mov_simple)
-        st.dataframe(df_apple_gl.sort_values('Puesto'), hide_index=True, use_container_width=True)
-    else:
-        st.info("Sin datos en Apple Global.")
-# --- FUNCIONES DE EXTRACCIÓN (Honduras y Global) ---
+with tab_deezer:
+    st.header("🎵 Deezer Charts")
+    cd1, cd2 = st.columns(2)
+    with cd1:
+        st.subheader("Honduras 🇭🇳")
+        df_dh = get_simple_chart("https://kworb.net/charts/deezer/hn.html")
+        st.dataframe(df_dh, hide_index=True, use_container_width=True)
+    with cd2:
+        st.subheader("Global 🌍")
+        df_dg = get_simple_chart("https://kworb.net/charts/deezer/ww.html")
+        st.dataframe(df_dg, hide_index=True, use_container_width=True)
 
-def get_deezer_hn():
-    url = "https://kworb.net/charts/deezer/hn.html"
-    headers = {'User-Agent': 'Mozilla/5.0'}
-    try:
-        response = requests.get(url, headers=headers, timeout=15)
-        response.encoding = 'utf-8'
-        soup = BeautifulSoup(response.text, 'html.parser')
-        table = soup.find('table')
-        if not table: return pd.DataFrame()
-        rows = []
-        solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
-        for tr in table.find_all('tr')[1:]:
-            cols = tr.find_all('td')
-            if len(cols) < 3: continue
-            full_text = cols[2].get_text(separator=" ").strip()
-            artist_name = full_text.split(" - ")[0].strip().upper()
-            if any(member == artist_name for member in solo_bts):
-                rows.append({'Puesto': int(cols[0].text.strip()), 'Mov': cols[1].text.strip(), 'Canción': full_text})
-        return pd.DataFrame(rows)
-    except: return pd.DataFrame()
+with tab_yt:
+    st.header("📺 YouTube Charts")
+    st.markdown("""
+        <div style="background-color: #F3E5F5; padding: 20px; border-radius: 15px; border-left: 5px solid #7D52B5; margin-bottom: 20px;">
+            <p style="color: #4A148C; margin: 0;"><b>Nota de Streaming:</b> YouTube bloquea la visualización directa. Haz clic abajo para apoyar oficialmente desde la fuente.</p>
+        </div>
+    """, unsafe_allow_html=True)
+    cy1, cy2 = st.columns(2)
+    with cy1:
+        st.info("🕒 Actualización Diaria")
+        st.link_button("🔥 VER TOP DIARIO HN", "https://charts.youtube.com/charts/TopVideos/hn/daily", use_container_width=True)
+    with cy2:
+        st.success("📅 Resumen Semanal")
+        st.link_button("👑 VER TOP SEMANAL HN", "https://charts.youtube.com/charts/TopVideos/hn/weekly", use_container_width=True)
 
-def get_deezer_global():
-    url = "https://kworb.net/charts/deezer/ww.html"
-    headers = {'User-Agent': 'Mozilla/5.0'}
-    try:
-        response = requests.get(url, headers=headers, timeout=15)
-        response.encoding = 'utf-8'
-        soup = BeautifulSoup(response.text, 'html.parser')
-        table = soup.find('table')
-        if not table: return pd.DataFrame()
-        rows = []
-        solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
-        for tr in table.find_all('tr')[1:]:
-            cols = tr.find_all('td')
-            if len(cols) < 3: continue
-            full_text = cols[2].get_text(separator=" ").strip()
-            artist_name = full_text.split(" - ")[0].strip().upper()
-            if any(member == artist_name for member in solo_bts):
-                rows.append({'Puesto': int(cols[0].text.strip()), 'Mov': cols[1].text.strip(), 'Canción': full_text})
-        return pd.DataFrame(rows)
-    except: return pd.DataFrame()
-
-def icon_mov_simple(val):
-    val = str(val).strip()
-    if val == "=" or val == "0" or val == "": return "➡️ ="
-    if "+" in val: return f"🟩 {val}"
-    if "-" in val: return f"🟥 {val}"
-    return f"🔵 {val}"
-
-# --- INTERFAZ EN COLUMNAS ---
-st.header("🎵 Deezer Charts")
-
-col_hn, col_gl = st.columns(2)
-
-with col_hn:
-    st.subheader("Honduras")
-    df_deezer = get_deezer_hn()
-    if not df_deezer.empty:
-        df_deezer['Mov'] = df_deezer['Mov'].apply(icon_mov_simple)
-        st.dataframe(df_deezer.sort_values('Puesto'), hide_index=True, use_container_width=True)
-    else:
-        st.info("Sin datos en Honduras.")
-
-with col_gl:
-    st.subheader("Global")
-    df_deezer_gl = get_deezer_global()
-    if not df_deezer_gl.empty:
-        df_deezer_gl['Mov'] = df_deezer_gl['Mov'].apply(icon_mov_simple)
-        st.dataframe(df_deezer_gl.sort_values('Puesto'), hide_index=True, use_container_width=True)
-    else:
-        st.info("Sin datos Globales.")
-
-# --- SECCIÓN YOUTUBE (DISEÑO ARMY HONDURAS) ---
-st.header("📺 YouTube Charts Honduras")
-
-col1, col2 = st.columns(2)
-
-with col1:
-    st.info("🕒 **Actualización Diaria**")
-    st.write("Mira los videos más populares de las últimas 24 horas.")
-    # Botón grande y llamativo
-    st.link_button("🔥 VER TOP DIARIO", "https://charts.youtube.com/charts/TopVideos/hn/daily", use_container_width=True)
-
-with col2:
-    st.success("📅 **Resumen Semanal**")
-    st.write("Revisa el impacto de la semana completa en Honduras.")
-    # Botón grande y llamativo
-    st.link_button("👑 VER TOP SEMANAL", "https://charts.youtube.com/charts/TopVideos/hn/weekly", use_container_width=True)
+with tab_social:
+    st.header("🔗 Conecta con BTS")
+    left, right = st.columns(2)
+    with left:
+        st.markdown("### 🎧 Perfiles de Música")
+        st.markdown("- [Spotify](https://open.spotify.com/artist/3Nrfpe0tUOSuS7O4ST6URG) | [BANGTANTV](https://www.youtube.com/@BANGTANTV)")
+        st.markdown("- [Apple Music](https://music.apple.com/artist/bts/667061285) | [Deezer](https://www.deezer.com/artist/4105021)")
+        st.write("**Solistas en Spotify:**")
+        st.caption("JK | Jimin | V | RM | Jin | Suga | j-hope")
+    with right:
+        st.markdown("### 📱 Redes Oficiales")
+        st.markdown("- [Instagram](https://www.instagram.com/bts.bighitofficial) | [TikTok](https://www.tiktok.com/@bts_official_bighit)")
+        st.markdown("- [X (Twitter)](https://x.com/bts_bighit)")
+        st.write("**Instagram Miembros:**")
+        st.caption("rkive | jin | agustd | uarmyhope | j.m | thv | mnijungkook")
 
 st.divider()
-    
-# --- SECCIÓN REDES SOCIALES (RESTAURADA EXACTAMENTE COMO LA QUERÍAS) ---
-left, right = st.columns(2)
-
-with left:
-    st.markdown("### Perfiles Oficiales")
-    st.markdown("- [Spotify: BTS](https://open.spotify.com/artist/3Nrfpe0tUJi4K4DXYWgMUX)")
-    st.markdown("- [YouTube: BANGTANTV](https://www.youtube.com/@BANGTANTV)")
-    st.markdown("- [Apple Music: BTS](https://music.apple.com/artist/bts/667061285)")
-    st.markdown("- [Deezer: BTS](https://www.deezer.com/artist/4105021)")
-    st.write("**Spotify Solistas:** [JK](https://open.spotify.com/intl-es/artist/6HaGTQPmzraVmaVxvz6EUc) | [Jimin](https://open.spotify.com/intl-es/artist/1oSPZhvZMIrWW5I41kPkkY) | [V](https://open.spotify.com/artist/3JsHnjpbhX4SnySpvpa9DK) | [RM](https://open.spotify.com/intl-es/artist/2auC28zjQyVTsiZKNgPRGs) | [Jin](https://open.spotify.com/artist/5vV3bFXnN6D6N3Nj4xRvaV) | [Suga](https://open.spotify.com/intl-es/artist/5RmQ8k4l3HZ8JoPb4mNsML) | [j-hope](https://open.spotify.com/artist/0b1sIQumIAsNbqAoIClSpy)")
-
-with right:
-    st.markdown("### Redes Sociales")
-    st.markdown("- [Instagram: @bts.bighitofficial](https://www.instagram.com/bts.bighitofficial)")
-    st.markdown("- [X (Twitter): @bts_bighit](https://x.com/bts_bighit)")
-    st.markdown("- [TikTok: @bts_official_bighit](https://www.tiktok.com/@bts_official_bighit)")
-    st.write("**Instagram Miembros:**")
-    st.caption("[RM](https://www.instagram.com/rkive) | [Jin](https://www.instagram.com/jin) | [SUGA](https://www.instagram.com/agustd) | [j-hope](https://www.instagram.com/uarmyhope) | [Jimin](https://www.instagram.com/j.m) | [V](https://www.instagram.com/thv) | [JK](https://www.instagram.com/mnijungkook)")
-
-st.caption("Creado para ARMY Honduras 💜")
-
+st.caption("Hecho con 💜 para ARMY Honduras")
