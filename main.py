@@ -10,11 +10,9 @@ st.set_page_config(page_title="BTS Charts Honduras 🇭🇳", page_icon="💜", 
 # --- ESTILOS CSS PERSONALIZADOS ---
 st.markdown("""
     <style>
-    /* Color para los encabezados */
     h1, h2, h3 {
         color: #7D52B5 !important;
     }
-    /* Estilo para los tabs */
     .stTabs [data-baseweb="tab-list"] button [data-testid="stMarkdownContainer"] p {
         font-size: 1.2rem;
         font-weight: bold;
@@ -85,18 +83,17 @@ def get_simple_chart(url):
         return pd.DataFrame(rows)
     except: return pd.DataFrame()
 
-# --- CABECERA (Original alineada a la izquierda) ---
+# --- CABECERA ---
 st.title("💜 BTS Charts Honduras")
 st.write(f"Actualizado el: {datetime.now().strftime('%d/%m/%Y')}")
 
 # --- SISTEMA DE PESTAÑAS ---
-tab_spot, tab_apple, tab_deezer, tab_yt, tab_social = st.tabs([
-    "🎧 Spotify", "🍎 Apple Music", "🎵 Deezer", "📺 YouTube", "🔗 Redes"
+tab_spot, tab_ytm, tab_apple, tab_deezer, tab_yt, tab_social = st.tabs([
+    "🎧 Spotify", "🎵 YouTube Music", "🍎 Apple Music", "🔊 Deezer", "📺 YouTube", "🔗 Redes"
 ])
 
 with tab_spot:
     st.header("📊 Spotify Charts")
-    
     st.subheader("Honduras 🇭🇳")
     c1, c2 = st.columns(2)
     with c1:
@@ -107,19 +104,33 @@ with tab_spot:
         st.markdown("**Top Semanal Honduras**")
         df_hw = get_kworb_data("https://kworb.net/spotify/country/hn_weekly.html", "spotifyweekly")
         st.table(style_df(df_hw))
-    
-    st.divider()
-    
-    st.subheader("Global 🌍")
-    c3, c4 = st.columns(2)
-    with c3:
-        st.markdown("**Top Diario Global**")
-        df_gd = get_kworb_data("https://kworb.net/spotify/country/global_daily.html", "spotifydaily")
-        st.table(style_df(df_gd))
-    with c4:
-        st.markdown("**Top Semanal Global**")
-        df_gw = get_kworb_data("https://kworb.net/spotify/country/global_weekly.html", "spotifyweekly")
-        st.table(style_df(df_gw))
+
+with tab_ytm:
+    # --- TU SECCIÓN DE YOUTUBE MUSIC EXACTA ---
+    st.header("🎧 YouTube Music Honduras")
+
+    # 1. Configuración de Datos Manuales
+    fecha_update_ytm = "8 de abril 2026"
+
+    # Datos para el Top Diario
+    data_yt_diario = [
+        {"Puesto": 57, "Mov": "🟥 -44", "Canción": "Hooligan - BTS"},
+        {"Puesto": 72, "Mov": "🟥 -29", "Canción": "2.0 - BTS"}
+    ]
+
+    # 2. Interfaz de la Sección
+    st.write(f"Última actualización manual: **{fecha_update_ytm}**")
+
+    col_manual_d, col_manual_w = st.columns(2)
+
+    with col_manual_d:
+        st.subheader("Top diario de canciones")
+        df_yt_m_daily = pd.DataFrame(data_yt_diario)
+        st.table(style_df(df_yt_m_daily))
+
+    with col_manual_w:
+        st.subheader("Top semanal de canciones")
+        st.info("No hay entradas de BTS en el chart semanal para esta fecha.")
 
 with tab_apple:
     st.header("🍎 Apple Music Charts")
@@ -134,7 +145,7 @@ with tab_apple:
         st.table(style_df(df_ag))
 
 with tab_deezer:
-    st.header("🎵 Deezer Charts")
+    st.header("🔊 Deezer Charts")
     cd1, cd2 = st.columns(2)
     with cd1:
         st.subheader("Honduras 🇭🇳")
@@ -144,22 +155,16 @@ with tab_deezer:
         st.subheader("Global 🌍")
         df_dg = get_simple_chart("https://kworb.net/charts/deezer/ww.html")
         st.table(style_df(df_dg))
-        
+
 with tab_yt:
-# --- SECCIÓN YOUTUBE MUSIC HONDURAS (MANUAL) ---
-st.header("🎧 YouTube Music Honduras")
+    # 1. Configuración de Datos Manuales
 
-# 1. Configuración de Datos Manuales
 # Esta fecha es independiente al resto del dashboard
+
 fecha_update_ytm = "8 de abril 2026"
-
-# Datos para el Top Diario
-data_yt_diario = [
-    {"Puesto": 57, "Mov": "🟥 -44", "Canción": "Hooligan - BTS"},
-    {"Puesto": 72, "Mov": "🟥 -29", "Canción": "2.0 - BTS"}
-]
-
-# 2. Interfaz de la Sección
+    st.header("📺 YouTube Charts Honduras")
+    c_y1, c_y2 = st.columns(2)
+   # 2. Interfaz de la Sección
 st.write(f"Última actualización manual: **{fecha_update_ytm}**")
 
 col_manual_d, col_manual_w = st.columns(2)
@@ -179,9 +184,8 @@ st.caption("Nota: Estos datos se ingresan manualmente debido a las restricciones
 st.divider()
 
 with tab_social:
-    # --- SECCIÓN REDES SOCIALES ---
+    # --- REDES SOCIALES ---
     left, right = st.columns(2)
-
     with left:
         st.markdown("### Plataformas de Streaming Oficiales")
         st.markdown("- [Spotify: BTS](https://open.spotify.com/artist/3Nrfpe0tUJi4K4DXYWgMUX)")
@@ -189,7 +193,6 @@ with tab_social:
         st.markdown("- [Apple Music: BTS](https://music.apple.com/artist/bts/667061285)")
         st.markdown("- [Deezer: BTS](https://www.deezer.com/artist/4105021)")
         st.write("**Spotify Solistas:** [JK](https://open.spotify.com/intl-es/artist/6HaGTQPmzraVmaVxvz6EUc) | [Jimin](https://open.spotify.com/intl-es/artist/1oSPZhvZMIrWW5I41kPkkY) | [V](https://open.spotify.com/artist/3JsHnjpbhX4SnySpvpa9DK) | [RM](https://open.spotify.com/intl-es/artist/2auC28zjQyVTsiZKNgPRGs) | [Jin](https://open.spotify.com/artist/5vV3bFXnN6D6N3Nj4xRvaV) | [Suga](https://open.spotify.com/intl-es/artist/5RmQ8k4l3HZ8JoPb4mNsML) | [j-hope](https://open.spotify.com/artist/0b1sIQumIAsNbqAoIClSpy)")
-
     with right:
         st.markdown("### Redes Sociales")
         st.markdown("- [Instagram: @bts.bighitofficial](https://www.instagram.com/bts.bighitofficial)")
