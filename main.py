@@ -159,7 +159,7 @@ def get_simple_chart(url):
     except: return pd.DataFrame()
 
 # --- CABECERA ---
-st.title("BTS Charts Honduras'BTS_Logo.png'")
+st.title("📊BTS Charts Honduras🇭🇳")
 st.write(f"Actualizado el: {datetime.now().strftime('%d/%m/%Y')}")
 
 # --- SISTEMA DE PESTAÑAS ---
@@ -168,7 +168,7 @@ tab_spot, tab_ytm, tab_apple, tab_deezer, tab_social = st.tabs([
 ])
 
 with tab_spot:
-    st.header("📊 Spotify Charts")
+    st.header("🟢Spotify Charts")
     st.subheader("Honduras 🇭🇳")
     c1, c2 = st.columns(2)
     with c1:
