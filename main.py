@@ -146,15 +146,6 @@ with tab_deezer:
         df_dg = get_simple_chart("https://kworb.net/charts/deezer/ww.html")
         st.table(style_df(df_dg))
 
-with tab_yt:
-    st.header("📺 YouTube Charts Honduras")
-    st.write("Debido a restricciones de acceso, usa los enlaces oficiales:")
-    c_y1, c_y2 = st.columns(2)
-    with c_y1:
-        st.link_button("🔥 VER TOP DIARIO", "https://charts.youtube.com/charts/TopVideos/hn/daily", use_container_width=True)
-    with c_y2:
-        st.link_button("👑 VER TOP SEMANAL", "https://charts.youtube.com/charts/TopVideos/hn/weekly", use_container_width=True)
-
 with tab_social:
     left, right = st.columns(2)
     with left:
