@@ -164,11 +164,11 @@ st.write(f"Actualizado el: {datetime.now().strftime('%d/%m/%Y')}")
 
 # --- SISTEMA DE PESTAÑAS ---
 tab_spot, tab_ytm, tab_apple, tab_deezer, tab_social = st.tabs([
-    "🎧 Spotify", "🎵 YouTube Music", "🍎 Apple Music", "🔊 Deezer", "🔗 Redes"
+    "🎧 Spotify", "🎵 YouTube Music", "🍎 Apple Music", "🔊 Deezer", "📱 Redes"
 ])
 
 with tab_spot:
-    st.header("🟢Spotify Charts")
+    st.header("🎧Spotify Charts")
     st.subheader("Honduras 🇭🇳")
     c1, c2 = st.columns(2)
     with c1:
@@ -194,7 +194,7 @@ with tab_spot:
         st.dataframe(df_gw, hide_index=True, use_container_width=True)
 
 with tab_ytm:
-    st.header("🎧 YouTube Music Honduras")
+    st.header("🎵 YouTube Music Honduras")
     fecha_update_ytm = "8 de abril 2026"
     st.write(f"Última actualización manual: **{fecha_update_ytm}**")
     data_yt_diario = [
