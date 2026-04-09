@@ -276,63 +276,20 @@ with col_gl:
     else:
         st.info("Sin datos Globales.")
 
-# --- SECCIÓN YOUTUBE CHARTS HONDURAS (DIARIO VS SEMANAL) ---
 st.header("YouTube Charts Honduras")
 
-def get_yt_data_working(url):
-    headers = {'User-Agent': 'Mozilla/5.0'}
-    try:
-        response = requests.get(url, headers=headers, timeout=15)
-        response.encoding = 'utf-8'
-        soup = BeautifulSoup(response.text, 'html.parser')
-        table = soup.find('table')
-        if not table: return pd.DataFrame()
-
-        rows = []
-        solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
-
-        for tr in table.find_all('tr')[1:]:
-            cols = tr.find_all('td')
-            if len(cols) < 3: continue
-            
-            full_text = cols[2].get_text(separator=" ").strip()
-            artist_name = full_text.split(" - ")[0].strip().upper()
-            
-            if any(member == artist_name for member in solo_bts):
-                rows.append({
-                    'Puesto': int(cols[0].text.strip()),
-                    'Mov': cols[1].text.strip(),
-                    'Video': full_text
-                })
-        return pd.DataFrame(rows)
-    except:
-        return pd.DataFrame()
-
-# Crear las dos columnas
 col_yt_d, col_yt_w = st.columns(2)
 
 with col_yt_d:
     st.subheader("Top diario de vídeos musicales")
-    # Este link extrae los datos DIARIOS de YouTube Honduras
-    df_yt_daily = get_yt_data_working("https://kworb.net/youtube/insights/hn.html")
-    if not df_yt_daily.empty:
-        df_yt_daily['Mov'] = df_yt_daily['Mov'].apply(icon_mov_simple)
-        st.dataframe(df_yt_daily.sort_values('Puesto'), hide_index=True, use_container_width=True)
-    else:
-        st.info("No hay videos de BTS en el top diario de hoy.")
+    # Esto incrusta la página oficial en un cuadro
+    st.components.v1.iframe("https://charts.youtube.com/charts/TopVideos/hn/daily", height=500, scrolling=True)
 
 with col_yt_w:
     st.subheader("Top semanal de vídeos musicales")
-    # Este link extrae los datos SEMANALES de YouTube Honduras
-    df_yt_weekly = get_yt_data_working("https://kworb.net/youtube/insights/hn_weekly.html")
-    if not df_yt_weekly.empty:
-        df_yt_weekly['Mov'] = df_yt_weekly['Mov'].apply(icon_mov_simple)
-        st.dataframe(df_yt_weekly.sort_values('Puesto'), hide_index=True, use_container_width=True)
-    else:
-        st.info("No hay videos de BTS en el top semanal.")
-
-st.divider()
-
+    # Esto incrusta la versión semanal
+    st.components.v1.iframe("https://charts.youtube.com/charts/TopVideos/hn/weekly", height=500, scrolling=True)
+    
 # --- SECCIÓN REDES SOCIALES (RESTAURADA EXACTAMENTE COMO LA QUERÍAS) ---
 left, right = st.columns(2)
 
