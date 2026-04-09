@@ -279,18 +279,13 @@ with col_gl:
 # --- SECCIÓN YOUTUBE CHARTS HONDURAS (DIARIO VS SEMANAL) ---
 st.header("YouTube Charts Honduras")
 
-def get_youtube_official_data(url):
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-    }
+def get_yt_data_working(url):
+    headers = {'User-Agent': 'Mozilla/5.0'}
     try:
         response = requests.get(url, headers=headers, timeout=15)
-        # Nota: YouTube Charts genera su contenido con JavaScript. 
-        # Si la tabla no aparece, es porque YouTube bloquea el acceso directo por código.
+        response.encoding = 'utf-8'
         soup = BeautifulSoup(response.text, 'html.parser')
-        
-        # Intentamos localizar la tabla de posiciones
-        table = soup.find('table') 
+        table = soup.find('table')
         if not table: return pd.DataFrame()
 
         rows = []
@@ -303,9 +298,9 @@ def get_youtube_official_data(url):
             full_text = cols[2].get_text(separator=" ").strip()
             artist_name = full_text.split(" - ")[0].strip().upper()
             
-            if any(member in artist_name for member in solo_bts):
+            if any(member == artist_name for member in solo_bts):
                 rows.append({
-                    'Puesto': int(cols[0].text.strip()) if cols[0].text.strip().isdigit() else cols[0].text.strip(),
+                    'Puesto': int(cols[0].text.strip()),
                     'Mov': cols[1].text.strip(),
                     'Video': full_text
                 })
@@ -318,25 +313,23 @@ col_yt_d, col_yt_w = st.columns(2)
 
 with col_yt_d:
     st.subheader("Top diario de vídeos musicales")
-    # Link oficial diario que compartiste
-    df_yt_daily = get_youtube_official_data("https://charts.youtube.com/charts/TopVideos/hn/daily")
+    # Este link extrae los datos DIARIOS de YouTube Honduras
+    df_yt_daily = get_yt_data_working("https://kworb.net/youtube/insights/hn.html")
     if not df_yt_daily.empty:
-        if 'icon_mov_simple' in globals():
-            df_yt_daily['Mov'] = df_yt_daily['Mov'].apply(icon_mov_simple)
+        df_yt_daily['Mov'] = df_yt_daily['Mov'].apply(icon_mov_simple)
         st.dataframe(df_yt_daily.sort_values('Puesto'), hide_index=True, use_container_width=True)
     else:
-        st.info("No se pudieron cargar datos del enlace oficial diario (YouTube bloqueó el acceso).")
+        st.info("No hay videos de BTS en el top diario de hoy.")
 
 with col_yt_w:
     st.subheader("Top semanal de vídeos musicales")
-    # Link oficial semanal que compartiste
-    df_yt_weekly = get_youtube_official_data("https://charts.youtube.com/charts/TopVideos/hn/weekly")
+    # Este link extrae los datos SEMANALES de YouTube Honduras
+    df_yt_weekly = get_yt_data_working("https://kworb.net/youtube/insights/hn_weekly.html")
     if not df_yt_weekly.empty:
-        if 'icon_mov_simple' in globals():
-            df_yt_weekly['Mov'] = df_yt_weekly['Mov'].apply(icon_mov_simple)
+        df_yt_weekly['Mov'] = df_yt_weekly['Mov'].apply(icon_mov_simple)
         st.dataframe(df_yt_weekly.sort_values('Puesto'), hide_index=True, use_container_width=True)
     else:
-        st.info("No se pudieron cargar datos del enlace oficial semanal (YouTube bloqueó el acceso).")
+        st.info("No hay videos de BTS en el top semanal.")
 
 st.divider()
 
