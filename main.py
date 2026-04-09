@@ -21,29 +21,54 @@ def get_base64(bin_file):
 image_path = 'BTSLOGO.png' 
 bin_str = get_base64(image_path)
 
-# --- ESTILOS CSS (Fondo + Tablas Celestes Transparentes) ---
+# --- ESTILOS CSS PERSONALIZADOS ACTUALIZADOS (con resaltado de títulos) ---
+bin_str = get_base64(image_path)
 if bin_str:
-    st.markdown(f'''
+    page_bg_img = f'''
     <style>
+    /* Fondo de la aplicación */
     .stApp {{
         background-image: url("data:image/png;base64,{bin_str}");
         background-size: repeat;
         background-attachment: fixed;
     }}
-    /* Encabezados: Celeste 50% transparencia */
-    [data-testid="stDataFrame"] th {{
-        background-color: rgba(173, 216, 230, 0.5) !important;
-        color: #4A148C !important;
-    }}
-    /* Celdas: Celeste 70% transparencia */
+
+    /* Fondo de las celdas de datos (Celeste 70% transparente) */
     [data-testid="stDataFrame"] td {{
         background-color: rgba(173, 216, 230, 0.7) !important;
         color: #000000 !important;
         font-weight: bold;
     }}
-    h1, h2, h3 {{ color: #7D52B5 !important; }}
+
+    /* Fondo de encabezados de tabla (Celeste 50% transparente) */
+    [data-testid="stDataFrame"] th {{
+        background-color: rgba(173, 216, 230, 0.5) !important;
+        color: #4A148C !important;
+    }}
+
+    /* --- NUEVO: ESTILO PARA TÍTULOS Y SUBTÍTULOS (para que se noten) --- */
+    h1, h2, h3, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {{
+        /* Fondo: Púrpura muy oscuro con 60% de transparencia */
+        background-color: rgba(50, 0, 100, 0.6) !important;
+        
+        /* Color de letra: Blanco para contraste máximo */
+        color: #FFFFFF !important;
+        
+        /* Espaciado interno para que el texto no toque el borde de la caja */
+        padding: 10px 20px !important;
+        
+        /* Bordes redondeados para un look más suave */
+        border-radius: 10px !important;
+        
+        /* Asegura que ocupe el ancho necesario pero no todo el ancho de la página */
+        display: inline-block !important;
+        
+        /* Sombra sutil para dar profundidad */
+        box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+    }}
     </style>
-    ''', unsafe_allow_html=True)
+    '''
+    st.markdown(page_bg_img, unsafe_allow_html=True)
 
 # --- VARIABLES Y FUNCIONES DE DATOS ---
 solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
