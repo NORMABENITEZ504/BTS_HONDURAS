@@ -121,7 +121,6 @@ def get_simple_chart(url):
 
 # --- CABECERA ---
 st.title("💜 BTS Charts Honduras")
-# Usamos una fecha de ejemplo, puedes usar datetime.now() para la fecha actual.
 st.write(f"Actualizado el: {datetime.now().strftime('%d/%m/%Y')}")
 
 # --- SISTEMA DE PESTAÑAS (Corregido: 5 pestañas para 5 bloques) ---
