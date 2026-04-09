@@ -21,16 +21,31 @@ def get_base64(bin_file):
 image_path = 'BTSLOGO.png' 
 bin_str = get_base64(image_path)
 
-# --- ESTILOS CSS PERSONALIZADOS ACTUALIZADOS (con resaltado de títulos) ---
+# --- ESTILOS CSS PERSONALIZADOS ACTUALIZADOS (Pestañas Blancas y Redes) ---
 bin_str = get_base64(image_path)
 if bin_str:
-    page_bg_img = f'''
+    st.markdown(f'''
     <style>
     /* Fondo de la aplicación */
     .stApp {{
         background-image: url("data:image/png;base64,{bin_str}");
         background-size: repeat;
         background-attachment: fixed;
+    }}
+
+    /* --- ESTILO PARA LAS PESTAÑAS (TABS) --- */
+    /* Caja de fondo para toda la barra de pestañas */
+    .stTabs [data-baseweb="tab-list"] {{
+        background-color: rgba(255, 255, 255, 0.8) !important; /* Blanco 80% transparente */
+        padding: 10px !important;
+        border-radius: 15px 15px 0px 0px !important;
+        border-bottom: 2px solid #7D52B5 !important;
+    }}
+    
+    /* Texto de las pestañas */
+    .stTabs [data-baseweb="tab-list"] button p {{
+        color: #4A148C !important; /* Morado oscuro para que resalte en el blanco */
+        font-weight: bold !important;
     }}
 
     /* Fondo de las celdas de datos (Celeste 70% transparente) */
@@ -46,29 +61,46 @@ if bin_str:
         color: #4A148C !important;
     }}
 
-    /* --- NUEVO: ESTILO PARA TÍTULOS Y SUBTÍTULOS (para que se noten) --- */
+    /* --- ESTILO PARA TÍTULOS Y SUBTÍTULOS (Caja Blanca) --- */
     h1, h2, h3, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {{
-        /* Fondo: Púrpura muy oscuro con 60% de transparencia */
-        background-color: rgba(50, 0, 100, 0.6) !important;
-        
-        /* Color de letra: Blanco para contraste máximo */
-        color: #FFFFFF !important;
-        
-        /* Espaciado interno para que el texto no toque el borde de la caja */
+        background-color: rgba(255, 255, 255, 0.8) !important; /* Blanco transparente */
+        color: #7D52B5 !important; /* Letra Morada */
         padding: 10px 20px !important;
-        
-        /* Bordes redondeados para un look más suave */
         border-radius: 10px !important;
-        
-        /* Asegura que ocupe el ancho necesario pero no todo el ancho de la página */
         display: inline-block !important;
-        
-        /* Sombra sutil para dar profundidad */
-        box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+        border: 1px solid #7D52B5 !important;
+    }}
+
+    /* --- ESTILO PARA LA SECCIÓN DE REDES SOCIALES --- */
+    [data-testid="stVerticalBlock"] [data-testid="stColumn"] {{
+        background-color: rgba(255, 255, 255, 0.8) !important; /* Blanco transparente */
+        padding: 20px !important;
+        border-radius: 15px !important;
+        margin-bottom: 20px !important;
+        border: 1px solid #E1BEE7 !important;
+    }}
+
+    /* Texto y enlaces en Redes */
+    [data-testid="stVerticalBlock"] [data-testid="stColumn"] * {{
+        color: #000000 !important; /* Letra negra para fondo blanco */
+    }}
+    
+    [data-testid="stVerticalBlock"] [data-testid="stColumn"] a {{
+        color: #7D52B5 !important; /* Enlaces morados */
+        text-decoration: underline !important;
+        font-weight: bold !important;
+    }}
+
+    /* Pie de página */
+    .stMarkdown p[style*="text-align: center"] {{
+        background-color: rgba(255, 255, 255, 0.8) !important;
+        color: #7D52B5 !important;
+        padding: 10px !important;
+        border-radius: 10px !important;
+        display: inline-block !important;
     }}
     </style>
-    '''
-    st.markdown(page_bg_img, unsafe_allow_html=True)
+    ''', unsafe_allow_html=True)
 
 # --- VARIABLES Y FUNCIONES DE DATOS ---
 solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
