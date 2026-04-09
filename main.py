@@ -6,7 +6,7 @@ from datetime import datetime
 import base64
 
 # --- CONFIGURACIÓN DE LA PÁGINA ---
-st.set_page_config(page_title="BTS Charts Honduras 🇭🇳", page_icon="💜", layout="wide")
+st.set_page_config(page_title="BTS Charts Honduras 🇭🇳", page_icon="BTS_Logo.png", layout="wide")
 
 # --- FUNCIÓN PARA CARGAR IMAGEN DE FONDO ---
 def get_base64(bin_file):
@@ -159,7 +159,7 @@ def get_simple_chart(url):
     except: return pd.DataFrame()
 
 # --- CABECERA ---
-st.title("💜 BTS Charts Honduras")
+st.title("BTS Charts Honduras'BTS_Logo.png'")
 st.write(f"Actualizado el: {datetime.now().strftime('%d/%m/%Y')}")
 
 # --- SISTEMA DE PESTAÑAS ---
