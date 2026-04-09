@@ -17,7 +17,7 @@ def get_base64(bin_file):
     except:
         return None
 
-# Asegúrate de que el archivo se llame exactamente BTSLOGO.png en tu carpeta
+# Ruta de tu imagen cargada
 image_path = 'BTSLOGO.png' 
 
 # --- ESTILOS CSS PERSONALIZADOS (Celeste Transparente) ---
@@ -35,6 +35,7 @@ if bin_str:
     [data-testid="stTable"] td, [data-testid="stDataFrame"] td {{
         background-color: rgba(173, 216, 230, 0.7) !important;
         color: #000000 !important;
+        font-weight: bold;
     }}
 
     /* Fondo de encabezados (Celeste 50% transparente) */
@@ -50,10 +51,9 @@ if bin_str:
     '''
     st.markdown(page_bg_img, unsafe_allow_html=True)
 
-# --- FUNCIÓN style_df (ESTA ES LA QUE FALTABA) ---
+# --- FUNCIÓN style_df ---
 def style_df(df):
-    if df.empty: return df
-    return df # El CSS de arriba ya se encarga del resto
+    return df # El CSS de arriba ya aplica los colores celestes
 
 # --- VARIABLES Y FUNCIONES DE DATOS ---
 solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
@@ -125,11 +125,11 @@ with tab_spot:
     with c1:
         st.markdown("**Top Diario Honduras**")
         df_hd = get_kworb_data("https://kworb.net/spotify/country/hn_daily.html", "spotifydaily")
-        st.dataframe(style_df(df_hd), hide_index=True, use_container_width=True)
+        st.dataframe(df_hd, hide_index=True, use_container_width=True)
     with c2:
         st.markdown("**Top Semanal Honduras**")
         df_hw = get_kworb_data("https://kworb.net/spotify/country/hn_weekly.html", "spotifyweekly")
-        st.dataframe(style_df(df_hw), hide_index=True, use_container_width=True)
+        st.dataframe(df_hw, hide_index=True, use_container_width=True)
 
 with tab_ytm:
     st.header("🎧 YouTube Music Honduras")
@@ -143,7 +143,7 @@ with tab_ytm:
     with col_manual_d:
         st.subheader("Top diario de canciones")
         df_yt_m_daily = pd.DataFrame(data_yt_diario)
-        st.dataframe(style_df(df_yt_m_daily), hide_index=True, use_container_width=True)
+        st.dataframe(df_yt_m_daily, hide_index=True, use_container_width=True)
     with col_manual_w:
         st.subheader("Top semanal de canciones")
         st.info("No hay entradas de BTS en el chart semanal para esta fecha.")
@@ -154,6 +154,36 @@ with tab_apple:
     with ca1:
         st.subheader("Honduras 🇭🇳")
         df_ah = get_simple_chart("https://kworb.net/charts/apple_s/hn.html")
-        st.dataframe(style_df(df_ah), hide_index=True, use_container_width=True)
+        st.dataframe(df_ah, hide_index=True, use_container_width=True)
     with ca2:
-        st.subheader("Global 🌍
+        st.subheader("Global 🌍")
+        df_ag = get_simple_chart("https://kworb.net/apple_songs/")
+        st.dataframe(df_ag, hide_index=True, use_container_width=True)
+
+with tab_deezer:
+    st.header("🔊 Deezer Charts")
+    cd1, cd2 = st.columns(2)
+    with cd1:
+        st.subheader("Honduras 🇭🇳")
+        df_dh = get_simple_chart("https://kworb.net/charts/deezer/hn.html")
+        st.dataframe(df_dh, hide_index=True, use_container_width=True)
+    with cd2:
+        st.subheader("Global 🌍")
+        df_dg = get_simple_chart("https://kworb.net/charts/deezer/ww.html")
+        st.dataframe(df_dg, hide_index=True, use_container_width=True)
+
+with tab_social:
+    left, right = st.columns(2)
+    with left:
+        st.markdown("### Plataformas de Streaming Oficiales")
+        st.markdown("- [Spotify: BTS](https://open.spotify.com/artist/3Nrfpe0tUJi4K4DXYWgMUX)")
+        st.markdown("- [YouTube: BANGTANTV](https://www.youtube.com/@BANGTANTV)")
+        st.write("**Spotify Solistas:** [JK](https://open.spotify.com/intl-es/artist/6HaGTQPmzraVmaVxvz6EUc) | [Jimin](https://open.spotify.com/intl-es/artist/1oSPZhvZMIrWW5I41kPkkY) | [V](https://open.spotify.com/artist/3JsHnjpbhX4SnySpvpa9DK) | [RM](https://open.spotify.com/intl-es/artist/2auC28zjQyVTsiZKNgPRGs) | [Jin](https://open.spotify.com/artist/5vV3bFXnN6D6N3Nj4xRvaV) | [Suga](https://open.spotify.com/intl-es/artist/5RmQ8k4l3HZ8JoPb4mNsML) | [j-hope](https://open.spotify.com/artist/0b1sIQumIAsNbqAoIClSpy)")
+    with right:
+        st.markdown("### Redes Sociales")
+        st.markdown("- [Instagram: @bts.bighitofficial](https://www.instagram.com/bts.bighitofficial)")
+        st.markdown("- [X (Twitter): @bts_bighit](https://x.com/bts_bighit)")
+        st.write("**Instagram Miembros:**")
+        st.caption("[RM](https://www.instagram.com/rkive) | [Jin](https://www.instagram.com/jin) | [SUGA](https://www.instagram.com/agustd) | [j-hope](https://www.instagram.com/uarmyhope) | [Jimin](https://www.instagram.com/j.m) | [V](https://www.instagram.com/thv) | [JK](https://www.instagram.com/mnijungkook)")
+
+st.markdown('<p style="text-align: center; color: #7D52B5; margin-top: 50px;">Hecho con amor para ARMY Honduras💜</p>', unsafe_allow_html=True)
