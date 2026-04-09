@@ -276,19 +276,35 @@ with col_gl:
     else:
         st.info("Sin datos Globales.")
 
-st.header("YouTube Charts Honduras")
+# --- SECCIÓN YOUTUBE CHARTS HONDURAS ---
+st.header("📺 YouTube Charts Honduras")
 
-col_yt_d, col_yt_w = st.columns(2)
+# Creamos un contenedor con estilo morado
+with st.container():
+    st.markdown("""
+        <div style="background-color: #F3E5F5; padding: 20px; border-radius: 15px; border-left: 5px solid #7D52B5;">
+            <h4 style="color: #7D52B5; margin-top: 0;">¡Acceso Directo a los Charts Oficiales!</h4>
+            <p style="color: #4A148C;">YouTube no permite mostrar sus gráficos directamente aquí por seguridad, 
+            pero puedes ver los datos actualizados al segundo haciendo clic abajo:</p>
+        </div>
+        <br>
+    """, unsafe_allow_html=True)
 
-with col_yt_d:
-    st.subheader("Top diario de vídeos musicales")
-    # Esto incrusta la página oficial en un cuadro
-    st.components.v1.iframe("https://charts.youtube.com/charts/TopVideos/hn/daily", height=500, scrolling=True)
+    col_yt1, col_yt2 = st.columns(2)
 
-with col_yt_w:
-    st.subheader("Top semanal de vídeos musicales")
-    # Esto incrusta la versión semanal
-    st.components.v1.iframe("https://charts.youtube.com/charts/TopVideos/hn/weekly", height=500, scrolling=True)
+    with col_yt1:
+        # Una "tarjeta" visual para el diario
+        st.subheader("🔥 Top Diario")
+        st.write("Mira qué videos están siendo tendencia hoy en Honduras.")
+        st.link_button("Abrir YouTube Daily ↗️", "https://charts.youtube.com/charts/TopVideos/hn/daily", use_container_width=True)
+
+    with col_yt2:
+        # Una "tarjeta" visual para el semanal
+        st.subheader("📊 Top Semanal")
+        st.write("Revisa el acumulado de reproducciones de la semana.")
+        st.link_button("Abrir YouTube Weekly ↗️", "https://charts.youtube.com/charts/TopVideos/hn/weekly", use_container_width=True)
+
+st.divider()
     
 # --- SECCIÓN REDES SOCIALES (RESTAURADA EXACTAMENTE COMO LA QUERÍAS) ---
 left, right = st.columns(2)
