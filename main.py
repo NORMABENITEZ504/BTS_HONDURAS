@@ -3,31 +3,67 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
+import base64
 
 # --- CONFIGURACIÓN DE LA PÁGINA ---
 st.set_page_config(page_title="BTS Charts Honduras 🇭🇳", page_icon="💜", layout="wide")
 
-# --- ESTILOS CSS PERSONALIZADOS ---
-st.markdown("""
-    <style>
-    h1, h2, h3 {
-        color: #7D52B5 !important;
-    }
-    .stTabs [data-baseweb="tab-list"] button [data-testid="stMarkdownContainer"] p {
-        font-size: 1.2rem;
-        font-weight: bold;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+# --- FUNCIÓN PARA CARGAR IMAGEN DE FONDO ---
+def get_base64(bin_file):
+    with open(bin_file, 'rb') as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
 
-# --- FUNCIÓN PARA PINTAR TABLAS DE MORADO CLARO ---
-def style_df(df):
-    if df.empty: return df
-    return df.style.set_properties(**{
-        'background-color': '#F8F1FF',
-        'color': '#4A148C',
-        'border-color': '#E1BEE7'
-    })
+# Reemplaza 'tu_imagen_de_fondo.png' con la ruta a la imagen que proporcionaste (image_3.png).
+# Por ejemplo, si está en la misma carpeta que este script, solo pon el nombre del archivo.
+# Asegúrate de que el archivo exista y sea accesible.
+# image_path = 'image_3.png' # Descomenta y ajusta si tienes el archivo localmente
+image_path = 'image_3.png' # Asumiendo que image_3.png está en el mismo directorio.
+
+# Si la imagen no está disponible localmente, el código no funcionará.
+# Para este ejemplo, usaré el nombre de archivo directo que asume que el archivo existe.
+
+# --- ESTILOS CSS PERSONALIZADOS ---
+try:
+    bin_str = get_base64(image_path)
+    page_bg_img = f'''
+    <style>
+    /* Fondo de la aplicación */
+    .stApp {{
+        background-image: url("data:image/png;base64,{bin_str}");
+        background-size: repeat; /* Repetir el patrón */
+        background-attachment: fixed;
+    }}
+
+    /* Estilos para las tablas */
+    .stDataFrame table {{
+        width: 100%;
+        border-collapse: collapse;
+    }}
+
+    /* Estilo para el encabezado de la tabla (MOV, CANCIÓN, etc.) */
+    .stDataFrame table thead tr th {{
+        background-color: rgba(173, 216, 230, 0.5) !important; /* Celeste con 50% de transparencia */
+        color: white !important; /* Texto blanco para legibilidad */
+        border: 1px solid white !important; /* Bordes blancos para visibilidad */
+    }}
+
+    /* Estilo para el cuerpo de la tabla */
+    .stDataFrame table tbody tr td {{
+        background-color: rgba(173, 216, 230, 0.7) !important; /* Celeste con 70% de transparencia */
+        color: white !important; /* Texto blanco para legibilidad */
+        border: 1px solid white !important; /* Bordes blancos para visibilidad */
+    }}
+
+    /* Color morado para títulos principales de st */
+    h1, h2, h3 {{
+        color: #7D52B5 !important;
+    }}
+    </style>
+    '''
+    st.markdown(page_bg_img, unsafe_allow_html=True)
+except FileNotFoundError:
+    st.error(f"No se pudo encontrar el archivo de imagen en la ruta especificada: {image_path}. Por favor, asegúrate de que el archivo existe y la ruta es correcta.")
 
 # --- VARIABLES Y FUNCIONES DE DATOS ---
 solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
@@ -85,11 +121,12 @@ def get_simple_chart(url):
 
 # --- CABECERA ---
 st.title("💜 BTS Charts Honduras")
+# Usamos una fecha de ejemplo, puedes usar datetime.now() para la fecha actual.
 st.write(f"Actualizado el: {datetime.now().strftime('%d/%m/%Y')}")
 
-# --- SISTEMA DE PESTAÑAS (Corregido: 5 pestañas para 5 bloques) ---
-tab_spot, tab_ytm, tab_apple, tab_deezer, tab_social = st.tabs([
-    "🎧 Spotify", "🎵 YouTube Music", "🍎 Apple Music", "🔊 Deezer", "🔗 Redes"
+# --- SISTEMA DE PESTAÑAS ---
+tab_spot, tab_ytm, tab_apple, tab_deezer, tab_yt, tab_social = st.tabs([
+    "🎧 Spotify", "🎵 YouTube Music", "🍎 Apple Music", "🔊 Deezer", "📺 YouTube", "🔗 Redes"
 ])
 
 with tab_spot:
@@ -99,25 +136,37 @@ with tab_spot:
     with c1:
         st.markdown("**Top Diario Honduras**")
         df_hd = get_kworb_data("https://kworb.net/spotify/country/hn_daily.html", "spotifydaily")
-        st.table(style_df(df_hd))
+        # Se usa st.dataframe para renderizar la tabla con los estilos CSS.
+        st.dataframe(df_hd, hide_index=True)
     with c2:
         st.markdown("**Top Semanal Honduras**")
         df_hw = get_kworb_data("https://kworb.net/spotify/country/hn_weekly.html", "spotifyweekly")
-        st.table(style_df(df_hw))
+        st.dataframe(df_hw, hide_index=True)
 
 with tab_ytm:
+    # --- TU SECCIÓN DE YOUTUBE MUSIC EXACTA ---
     st.header("🎧 YouTube Music Honduras")
+
+    # 1. Configuración de Datos Manuales
     fecha_update_ytm = "8 de abril 2026"
+
+    # Datos para el Top Diario
     data_yt_diario = [
         {"Puesto": 57, "Mov": "🟥 -44", "Canción": "Hooligan - BTS"},
         {"Puesto": 72, "Mov": "🟥 -29", "Canción": "2.0 - BTS"}
     ]
-    st.write(f"Última actualización: **{fecha_update_ytm}**")
+
+    # 2. Interfaz de la Sección
+    st.write(f"Última actualización manual: **{fecha_update_ytm}**")
+
     col_manual_d, col_manual_w = st.columns(2)
+
     with col_manual_d:
         st.subheader("Top diario de canciones")
         df_yt_m_daily = pd.DataFrame(data_yt_diario)
-        st.table(style_df(df_yt_m_daily))
+        # Se usa st.dataframe para renderizar la tabla con los estilos CSS.
+        st.dataframe(df_yt_m_daily, hide_index=True)
+
     with col_manual_w:
         st.subheader("Top semanal de canciones")
         st.info("No hay entradas de BTS en el chart semanal para esta fecha.")
@@ -128,11 +177,11 @@ with tab_apple:
     with ca1:
         st.subheader("Honduras 🇭🇳")
         df_ah = get_simple_chart("https://kworb.net/charts/apple_s/hn.html")
-        st.table(style_df(df_ah))
+        st.dataframe(df_ah, hide_index=True)
     with ca2:
         st.subheader("Global 🌍")
         df_ag = get_simple_chart("https://kworb.net/apple_songs/")
-        st.table(style_df(df_ag))
+        st.dataframe(df_ag, hide_index=True)
 
 with tab_deezer:
     st.header("🔊 Deezer Charts")
@@ -140,13 +189,20 @@ with tab_deezer:
     with cd1:
         st.subheader("Honduras 🇭🇳")
         df_dh = get_simple_chart("https://kworb.net/charts/deezer/hn.html")
-        st.table(style_df(df_dh))
+        st.dataframe(df_dh, hide_index=True)
     with cd2:
         st.subheader("Global 🌍")
         df_dg = get_simple_chart("https://kworb.net/charts/deezer/ww.html")
-        st.table(style_df(df_dg))
+        st.dataframe(df_dg, hide_index=True)
+
+with tab_yt:
+    # Asegúrate de rellenar la lógica de YouTube aquí.
+    # Por ahora, se mantiene la estructura vacía para evitar errores.
+    st.header("📺 YouTube Video Charts")
+    st.info("Lógica de YouTube por implementar.")
 
 with tab_social:
+    # --- REDES SOCIALES ---
     left, right = st.columns(2)
     with left:
         st.markdown("### Plataformas de Streaming Oficiales")
