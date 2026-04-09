@@ -112,7 +112,7 @@ with tab_ytm:
         {"Puesto": 57, "Mov": "🟥 -44", "Canción": "Hooligan - BTS"},
         {"Puesto": 72, "Mov": "🟥 -29", "Canción": "2.0 - BTS"}
     ]
-    st.write(f"Última actualización manual: **{fecha_update_ytm}**")
+    st.write(f"Última actualización: **{fecha_update_ytm}**")
     col_manual_d, col_manual_w = st.columns(2)
     with col_manual_d:
         st.subheader("Top diario de canciones")
