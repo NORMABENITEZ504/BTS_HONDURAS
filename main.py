@@ -10,18 +10,18 @@ st.set_page_config(page_title="BTS Charts Honduras 🇭🇳", page_icon="💜", 
 # --- ESTILOS CSS PERSONALIZADOS ---
 st.markdown("""
     <style>
-    /* Título principal centrado y MUCHO más grande */
+    /* Título principal alineado a la IZQUIERDA y muy grande */
     .main-title {
-        text-align: center;
+        text-align: left;
         color: #7D52B5;
         font-family: 'Trebuchet MS', sans-serif;
         font-size: 5.5rem; /* Tamaño extra grande */
         font-weight: bold;
         margin-top: -50px;
-        margin-bottom: -10px;
+        margin-bottom: 0px;
     }
     .sub-title {
-        text-align: center;
+        text-align: left;
         color: #9B72CF;
         font-family: 'Trebuchet MS', sans-serif;
         font-size: 2rem;
@@ -106,7 +106,7 @@ def get_simple_chart(url):
         return pd.DataFrame(rows)
     except: return pd.DataFrame()
 
-# --- CABECERA ---
+# --- CABECERA IZQUIERDA ---
 st.markdown('<p class="main-title">💜 BTS Charts Honduras</p>', unsafe_allow_html=True)
 st.markdown(f'<p class="sub-title">Actualizado: {datetime.now().strftime("%d/%m/%Y")}</p>', unsafe_allow_html=True)
 
@@ -179,7 +179,6 @@ with tab_yt:
         st.link_button("👑 VER TOP SEMANAL", "https://charts.youtube.com/charts/TopVideos/hn/weekly", use_container_width=True)
 
 with tab_social:
-    # --- REDES SOCIALES RESTAURADAS ---
     left, right = st.columns(2)
     with left:
         st.markdown("### Plataformas de Streaming Oficiales")
@@ -196,4 +195,4 @@ with tab_social:
         st.write("**Instagram Miembros:**")
         st.caption("[RM](https://www.instagram.com/rkive) | [Jin](https://www.instagram.com/jin) | [SUGA](https://www.instagram.com/agustd) | [j-hope](https://www.instagram.com/uarmyhope) | [Jimin](https://www.instagram.com/j.m) | [V](https://www.instagram.com/thv) | [JK](https://www.instagram.com/mnijungkook)")
 
-st.markdown('<p style="text-align: center; color: #7D52B5; margin-top: 50px;">Hecho con amor para ARMY Honduras💜</p>', unsafe_allow_html=True)
+st.markdown('<p style="text-align: left; color: #7D52B5; margin-top: 50px;">Hecho con amor para ARMY Honduras💜</p>', unsafe_allow_html=True)
