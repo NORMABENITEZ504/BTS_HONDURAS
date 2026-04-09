@@ -21,8 +21,7 @@ def get_base64(bin_file):
 image_path = 'BTSLOGO.png' 
 bin_str = get_base64(image_path)
 
-# --- ESTILOS CSS PERSONALIZADOS ACTUALIZADOS (Pestañas Blancas y Redes) ---
-bin_str = get_base64(image_path)
+# --- ESTILOS CSS PERSONALIZADOS (Letras Azules y Fondos Blancos) ---
 if bin_str:
     st.markdown(f'''
     <style>
@@ -34,59 +33,56 @@ if bin_str:
     }}
 
     /* --- ESTILO PARA LAS PESTAÑAS (TABS) --- */
-    /* Caja de fondo para toda la barra de pestañas */
     .stTabs [data-baseweb="tab-list"] {{
-        background-color: rgba(255, 255, 255, 0.8) !important; /* Blanco 80% transparente */
+        background-color: rgba(255, 255, 255, 0.8) !important;
         padding: 10px !important;
         border-radius: 15px 15px 0px 0px !important;
-        border-bottom: 2px solid #7D52B5 !important;
+        border-bottom: 2px solid #0000FF !important; /* Línea azul */
     }}
     
-    /* Texto de las pestañas */
     .stTabs [data-baseweb="tab-list"] button p {{
-        color: #4A148C !important; /* Morado oscuro para que resalte en el blanco */
+        color: #0000FF !important; /* Texto de pestañas en azul */
         font-weight: bold !important;
     }}
 
-    /* Fondo de las celdas de datos (Celeste 70% transparente) */
+    /* --- TABLAS CELESTES --- */
     [data-testid="stDataFrame"] td {{
         background-color: rgba(173, 216, 230, 0.7) !important;
         color: #000000 !important;
         font-weight: bold;
     }}
 
-    /* Fondo de encabezados de tabla (Celeste 50% transparente) */
     [data-testid="stDataFrame"] th {{
         background-color: rgba(173, 216, 230, 0.5) !important;
-        color: #4A148C !important;
+        color: #0000FF !important; /* Encabezados de tabla en azul */
     }}
 
-    /* --- ESTILO PARA TÍTULOS Y SUBTÍTULOS (Caja Blanca) --- */
+    /* --- TÍTULOS Y SUBTÍTULOS EN AZUL CON FONDO BLANCO --- */
     h1, h2, h3, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {{
-        background-color: rgba(255, 255, 255, 0.8) !important; /* Blanco transparente */
-        color: #7D52B5 !important; /* Letra Morada */
+        background-color: rgba(255, 255, 255, 0.8) !important;
+        color: #0000FF !important; /* LETRAS EN AZUL */
         padding: 10px 20px !important;
         border-radius: 10px !important;
         display: inline-block !important;
-        border: 1px solid #7D52B5 !important;
+        border: 1px solid #0000FF !important;
+        font-weight: bold !important;
     }}
 
-    /* --- ESTILO PARA LA SECCIÓN DE REDES SOCIALES --- */
+    /* --- SECCIÓN DE REDES SOCIALES --- */
     [data-testid="stVerticalBlock"] [data-testid="stColumn"] {{
-        background-color: rgba(255, 255, 255, 0.8) !important; /* Blanco transparente */
+        background-color: rgba(255, 255, 255, 0.8) !important;
         padding: 20px !important;
         border-radius: 15px !important;
-        margin-bottom: 20px !important;
-        border: 1px solid #E1BEE7 !important;
+        border: 1px solid #0000FF !important;
     }}
 
     /* Texto y enlaces en Redes */
     [data-testid="stVerticalBlock"] [data-testid="stColumn"] * {{
-        color: #000000 !important; /* Letra negra para fondo blanco */
+        color: #000000 !important;
     }}
     
     [data-testid="stVerticalBlock"] [data-testid="stColumn"] a {{
-        color: #7D52B5 !important; /* Enlaces morados */
+        color: #0000FF !important; /* Enlaces en azul */
         text-decoration: underline !important;
         font-weight: bold !important;
     }}
@@ -94,7 +90,7 @@ if bin_str:
     /* Pie de página */
     .stMarkdown p[style*="text-align: center"] {{
         background-color: rgba(255, 255, 255, 0.8) !important;
-        color: #7D52B5 !important;
+        color: #0000FF !important;
         padding: 10px !important;
         border-radius: 10px !important;
         display: inline-block !important;
@@ -167,8 +163,6 @@ tab_spot, tab_ytm, tab_apple, tab_deezer, tab_social = st.tabs([
 
 with tab_spot:
     st.header("📊 Spotify Charts")
-    
-    # SECCIÓN HONDURAS
     st.subheader("Honduras 🇭🇳")
     c1, c2 = st.columns(2)
     with c1:
@@ -182,7 +176,6 @@ with tab_spot:
 
     st.divider()
 
-    # SECCIÓN GLOBAL (RESTAURADA)
     st.subheader("Global 🌍")
     c3, c4 = st.columns(2)
     with c3:
@@ -197,7 +190,7 @@ with tab_spot:
 with tab_ytm:
     st.header("🎧 YouTube Music Honduras")
     fecha_update_ytm = "8 de abril 2026"
-    st.write(f"Última actualización: **{fecha_update_ytm}**")
+    st.write(f"Última actualización manual: **{fecha_update_ytm}**")
     data_yt_diario = [
         {"Puesto": 57, "Mov": "🟥 -44", "Canción": "Hooligan - BTS"},
         {"Puesto": 72, "Mov": "🟥 -29", "Canción": "2.0 - BTS"}
@@ -249,4 +242,4 @@ with tab_social:
         st.write("**Instagram Miembros:**")
         st.caption("[RM](https://www.instagram.com/rkive) | [Jin](https://www.instagram.com/jin) | [SUGA](https://www.instagram.com/agustd) | [j-hope](https://www.instagram.com/uarmyhope) | [Jimin](https://www.instagram.com/j.m) | [V](https://www.instagram.com/thv) | [JK](https://www.instagram.com/mnijungkook)")
 
-st.markdown('<p style="text-align: center; color: #7D52B5; margin-top: 50px;">Hecho con amor para ARMY Honduras 💜</p>', unsafe_allow_html=True)
+st.markdown('<p style="text-align: center; color: #0000FF; margin-top: 50px;">Hecho con amor para ARMY Honduras 💜</p>', unsafe_allow_html=True)
