@@ -276,31 +276,24 @@ with col_gl:
     else:
         st.info("Sin datos Globales.")
 
-# --- SECCIÓN YOUTUBE (ÚLTIMO INTENTO VISUAL) ---
+# --- SECCIÓN YOUTUBE (DISEÑO ARMY HONDURAS) ---
 st.header("📺 YouTube Charts Honduras")
 
-# Intentamos cargar el sitio a través de un componente que engaña un poco al bloqueo
-# Si esto falla, lo mejor es el diseño de "Tarjetas Informativas" que te pasé antes
-try:
-    st.components.v1.html(
-        """
-        <div style="width: 100%; height: 600px; overflow: hidden; border-radius: 15px; border: 2px solid #7D52B5;">
-            <iframe 
-                src="https://charts.youtube.com/charts/TopVideos/hn/daily" 
-                width="100%" 
-                height="600" 
-                style="border:none; margin-top: -50px;"
-                sandbox="allow-scripts allow-same-origin allow-popups"
-            ></iframe>
-        </div>
-        """,
-        height=600,
-    )
-except:
-    st.error("YouTube sigue bloqueando la visualización directa por políticas de seguridad.")
+col1, col2 = st.columns(2)
 
-st.info("💡 Tip: Si ves el cuadro gris, es porque Google detecta que estás en una app externa. Haz clic en los botones de abajo para ver la fuente real.")
+with col1:
+    st.info("🕒 **Actualización Diaria**")
+    st.write("Mira los videos más populares de las últimas 24 horas.")
+    # Botón grande y llamativo
+    st.link_button("🔥 VER TOP DIARIO", "https://charts.youtube.com/charts/TopVideos/hn/daily", use_container_width=True)
 
+with col2:
+    st.success("📅 **Resumen Semanal**")
+    st.write("Revisa el impacto de la semana completa en Honduras.")
+    # Botón grande y llamativo
+    st.link_button("👑 VER TOP SEMANAL", "https://charts.youtube.com/charts/TopVideos/hn/weekly", use_container_width=True)
+
+st.divider()
     
 # --- SECCIÓN REDES SOCIALES (RESTAURADA EXACTAMENTE COMO LA QUERÍAS) ---
 left, right = st.columns(2)
