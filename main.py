@@ -30,20 +30,17 @@ if bin_str:
         background-attachment: fixed;
     }}
 
-    /* Estilo de las celdas de tablas */
     [data-testid="stDataFrame"] td {{
         background-color: rgba(173, 216, 230, 0.7) !important;
         color: #000000 !important;
         font-weight: bold !important;
     }}
 
-    /* Estilo de encabezados de tablas */
     [data-testid="stDataFrame"] th {{
         background-color: rgba(173, 216, 230, 0.5) !important;
         color: #004aad !important;
     }}
 
-    /* Estilo de Pestañas */
     .stTabs [data-baseweb="tab-list"] {{
         background-color: rgba(255, 255, 255, 0.85) !important;
         padding: 10px !important;
@@ -56,7 +53,6 @@ if bin_str:
         font-weight: bold !important;
     }}
 
-    /* Títulos y Subtítulos */
     h1, h2, h3, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {{
         background-color: rgba(255, 255, 255, 0.85) !important;
         color: #004aad !important;
@@ -67,7 +63,6 @@ if bin_str:
         margin-bottom: 25px !important;
     }}
 
-    /* Secciones de Redes y Columnas */
     [data-testid="stColumn"] {{
         background-color: rgba(255, 255, 255, 0.85) !important;
         padding: 20px !important;
@@ -132,9 +127,9 @@ def get_simple_chart(url):
 st.title("📊 BTS Charts Honduras 🇭🇳")
 st.write(f"Actualizado el: {datetime.now().strftime('%d/%m/%Y')}")
 
-# --- PESTAÑAS ---
-tab_spot, tab_ytm, tab_apple, tab_deezer, tab_social = st.tabs([
-    "🎧 Spotify", "🎵 YouTube Music", "🍎 Apple Music", "🔊 Deezer", "📱 Redes"
+# --- PESTAÑAS (Añadida pestaña iTunes) ---
+tab_spot, tab_ytm, tab_apple, tab_itunes, tab_deezer, tab_social = st.tabs([
+    "🎧 Spotify", "🎵 YouTube Music", "🍎 Apple Music", "⭐ iTunes", "🔊 Deezer", "📱 Redes"
 ])
 
 with tab_spot:
@@ -186,6 +181,13 @@ with tab_apple:
         st.subheader("Global 🌍")
         df_ag = get_simple_chart("https://kworb.net/apple_songs/")
         st.dataframe(df_ag, hide_index=True, use_container_width=True, height=600)
+
+with tab_itunes:
+    st.header("⭐ iTunes Honduras")
+    st.subheader("Honduras 🇭🇳")
+    # Usamos el link que proporcionaste
+    df_itunes_hn = get_simple_chart("https://kworb.net/charts/itunes/hn.html")
+    st.dataframe(df_itunes_hn, hide_index=True, use_container_width=True, height=600)
 
 with tab_deezer:
     st.header("🔊 Deezer Charts")
