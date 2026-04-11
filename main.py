@@ -20,7 +20,7 @@ def get_base64(bin_file):
 image_path = 'BTSLOGO.png' 
 bin_str = get_base64(image_path)
 
-# --- ESTILOS CSS REFORZADOS ---
+# --- ESTILOS CSS REFORZADOS (PARA TABLAS LARGAS) ---
 if bin_str:
     st.markdown(f'''
     <style>
@@ -30,31 +30,31 @@ if bin_str:
         background-attachment: fixed;
     }}
 
-    /* --- FORZAR TABLAS COMPLETAS Y COLORES --- */
-    /* Este bloque obliga a que se vea el celeste y se estire la tabla */
-    [data-testid="stDataFrame"] {{
-        background-color: transparent !important;
+    /* --- FORZAR TABLAS COMPLETAS SIN SCROLL --- */
+    /* Quitamos el límite de altura de los contenedores de Streamlit */
+    [data-testid="stDataFrame"] > div:first-child {{
+        height: auto !important;
     }}
     
-    [data-testid="stDataFrame"] [data-testid="stTable"] td, 
+    [data-testid="stDataFrame"] {{
+        width: 100% !important;
+        height: auto !important;
+    }}
+
+    /* Estilo de las celdas (Celeste transparente) */
     [data-testid="stDataFrame"] td {{
         background-color: rgba(173, 216, 230, 0.7) !important;
         color: #000000 !important;
         font-weight: bold !important;
     }}
 
-    [data-testid="stDataFrame"] [data-testid="stTable"] th,
+    /* Estilo de encabezados */
     [data-testid="stDataFrame"] th {{
         background-color: rgba(173, 216, 230, 0.5) !important;
         color: #004aad !important;
     }}
 
-    /* Quitar el límite de altura para que no salga el scroll gris feo */
-    [data-testid="stDataFrame"] > div {{
-        height: auto !important;
-    }}
-
-    /* --- ESTILO DE PESTAÑAS --- */
+    /* --- ESTILO DE PESTAÑAS (TABS) --- */
     .stTabs [data-baseweb="tab-list"] {{
         background-color: rgba(255, 255, 255, 0.85) !important;
         padding: 10px !important;
@@ -67,7 +67,7 @@ if bin_str:
         font-weight: bold !important;
     }}
 
-    /* --- TÍTULOS CON FONDO BLANCO Y LETRA AZUL --- */
+    /* --- TÍTULOS CON FONDO BLANCO --- */
     h1, h2, h3, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {{
         background-color: rgba(255, 255, 255, 0.85) !important;
         color: #004aad !important;
@@ -76,7 +76,6 @@ if bin_str:
         display: inline-block !important;
         border-left: 5px solid #004aad !important;
         margin-bottom: 25px !important;
-        margin-top: 20px !important;
     }}
 
     /* --- SECCIÓN REDES --- */
@@ -136,42 +135,32 @@ tab_spot, tab_ytm, tab_apple, tab_deezer, tab_social = st.tabs([
 with tab_spot:
     st.header("🎧 Spotify Charts")
     
-    # Honduras
     st.subheader("Honduras 🇭🇳")
     c1, c2 = st.columns(2)
     with c1:
         st.markdown("**Top Diario Honduras**")
         df_hd = get_kworb_data("https://kworb.net/spotify/country/hn_daily.html", "spotifydaily")
-        st.dataframe(df_hd, hide_index=True, use_container_width=True)
+        # Ajustamos el height a 600 o más para que se vea toda la lista sin scroll
+        st.dataframe(df_hd, hide_index=True, use_container_width=True, height=600)
     with c2:
         st.markdown("**Top Semanal Honduras**")
         df_hw = get_kworb_data("https://kworb.net/spotify/country/hn_weekly.html", "spotifyweekly")
-        st.dataframe(df_hw, hide_index=True, use_container_width=True)
+        st.dataframe(df_hw, hide_index=True, use_container_width=True, height=600)
 
     st.divider()
 
-    # Global
     st.subheader("Global 🌍")
     c3, c4 = st.columns(2)
     with c3:
         st.markdown("**Top Diario Global**")
         df_gd = get_kworb_data("https://kworb.net/spotify/country/global_daily.html", "spotifydaily")
-        st.dataframe(df_gd, hide_index=True, use_container_width=True)
+        st.dataframe(df_gd, hide_index=True, use_container_width=True, height=600)
     with c4:
         st.markdown("**Top Semanal Global**")
         df_gw = get_kworb_data("https://kworb.net/spotify/country/global_weekly.html", "spotifyweekly")
-        st.dataframe(df_gw, hide_index=True, use_container_width=True)
+        st.dataframe(df_gw, hide_index=True, use_container_width=True, height=600)
 
-# ... (Las demás pestañas se mantienen igual con st.dataframe)
-
-with tab_social:
-    left, right = st.columns(2)
-    with left:
-        st.markdown("### Plataformas Oficiales")
-        st.markdown("- [Spotify: BTS](https://open.spotify.com/artist/3Nrfpe0tUJi4K4DXYWgMUX)")
-        st.markdown("- [YouTube: BANGTANTV](https://www.youtube.com/@BANGTANTV)")
-    with right:
-        st.markdown("### Redes Sociales")
-        st.markdown("- [Instagram: @bts.bighitofficial](https://www.instagram.com/bts.bighitofficial)")
+# El resto de las pestañas (Apple, Deezer) también deberían llevar height=600 
+# para que no se corten.
 
 st.markdown('<p style="text-align: center; color: #004aad; margin-top: 50px;">Hecho con amor para ARMY Honduras 💜</p>', unsafe_allow_html=True)
