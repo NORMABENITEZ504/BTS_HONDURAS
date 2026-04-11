@@ -133,8 +133,8 @@ st.title("📊 BTS Charts Honduras 🇭🇳")
 st.write(f"Actualizado el: {datetime.now().strftime('%d/%m/%Y')}")
 
 # --- PESTAÑAS ---
-tab_spot, tab_ytm, tab_apple, tab_deezer, tab_social = st.tabs([
-    "🎧 Spotify", "🎵 YouTube Music", "🍎 Apple Music", "🔊 Deezer", "📱 Redes"
+tab_spot, tab_ytm, tab_apple, tab_itunes, tab_deezer, tab_social = st.tabs([
+    "🎧 Spotify", "🎵 YouTube Music", "🍎 Apple Music", "⭐ iTunes", "🔊 Deezer", "📱 Redes"
 ])
 
 with tab_spot:
@@ -186,6 +186,13 @@ with tab_apple:
         st.subheader("Global 🌍")
         df_ag = get_simple_chart("https://kworb.net/apple_songs/")
         st.dataframe(df_ag, hide_index=True, use_container_width=True, height=600)
+
+with tab_itunes:
+    st.header("⭐ iTunes Honduras")
+    st.subheader("Honduras 🇭🇳")
+    # Usamos el link que proporcionaste
+    df_itunes_hn = get_simple_chart("https://kworb.net/charts/itunes/hn.html")
+    st.dataframe(df_itunes_hn, hide_index=True, use_container_width=True, height=600)
 
 with tab_deezer:
     st.header("🔊 Deezer Charts")
