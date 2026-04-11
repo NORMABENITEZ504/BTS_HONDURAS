@@ -188,11 +188,20 @@ with tab_apple:
         st.dataframe(df_ag, hide_index=True, use_container_width=True, height=600)
 
 with tab_itunes:
-    st.header("⭐ iTunes Honduras")
+    st.header("⭐ iTunes Top Songs")
     st.subheader("Honduras 🇭🇳")
-    # Usamos el link que proporcionaste
-    df_itunes_hn = get_simple_chart("https://kworb.net/charts/itunes/hn.html")
-    st.dataframe(df_itunes_hn, hide_index=True, use_container_width=True, height=600)
+    
+    # Mensaje de "En proceso" con estilo
+    st.info("🚧 **Sección en proceso:** Estamos ajustando la extracción de datos para iTunes Honduras.")
+    
+    # Opcional: Puedes dejar un spinner o un mensaje de carga
+    with st.spinner("Preparando actualización de iTunes..."):
+        st.write("Próximamente verás aquí el Top Songs de iTunes Honduras.")
+    
+    # He comentado el código anterior por si lo necesitas luego, 
+    # pero ahora no se mostrará la tabla vacía.
+    # df_itunes_hn = get_itunes_data("https://kworb.net/charts/itunes/hn.html")
+    # st.dataframe(df_itunes_hn, hide_index=True, use_container_width=True, height=600)
 
 with tab_deezer:
     st.header("🔊 Deezer Charts")
