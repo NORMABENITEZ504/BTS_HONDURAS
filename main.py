@@ -196,11 +196,10 @@ with tab_spot:
 with tab_ytm:
     st.header("🎵 YouTube Music Honduras")
     fecha_update_ytm = "8 de abril 2026"
-    st.write(f"Última actualización manual: **{fecha_update_ytm}**")
+    st.write(f"Última actualización: **{fecha_update_ytm}**")
     data_yt_diario = [
-        {"Puesto": 57, "Mov": "🟥 -44", "Canción": "Hooligan - BTS"},
-        {"Puesto": 72, "Mov": "🟥 -29", "Canción": "2.0 - BTS"}
-    ]
+     st.info("No hay entradas de BTS en el chart semanal para esta fecha.")
+        
     col_manual_d, col_manual_w = st.columns(2)
     with col_manual_d:
         st.subheader("Top diario de canciones")
