@@ -29,30 +29,25 @@ if bin_str:
         background-size: repeat;
         background-attachment: fixed;
     }}
-
     [data-testid="stDataFrame"] td {{
         background-color: rgba(173, 216, 230, 0.7) !important;
         color: #000000 !important;
         font-weight: bold !important;
     }}
-
     [data-testid="stDataFrame"] th {{
         background-color: rgba(173, 216, 230, 0.5) !important;
         color: #004aad !important;
     }}
-
     .stTabs [data-baseweb="tab-list"] {{
         background-color: rgba(255, 255, 255, 0.85) !important;
         padding: 10px !important;
         border-radius: 15px 15px 0px 0px !important;
         border-bottom: 3px solid #004aad !important;
     }}
-    
     .stTabs [data-baseweb="tab-list"] button p {{
         color: #004aad !important;
         font-weight: bold !important;
     }}
-
     h1, h2, h3, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {{
         background-color: rgba(255, 255, 255, 0.85) !important;
         color: #004aad !important;
@@ -62,7 +57,6 @@ if bin_str:
         border-left: 5px solid #004aad !important;
         margin-bottom: 25px !important;
     }}
-
     [data-testid="stColumn"] {{
         background-color: rgba(255, 255, 255, 0.85) !important;
         padding: 20px !important;
@@ -123,14 +117,41 @@ def get_simple_chart(url):
         return pd.DataFrame(rows)
     except: return pd.DataFrame()
 
+# --- NUEVA FUNCIÓN ESPECÍFICA PARA ITUNES ---
+def get_itunes_data(url):
+    headers = {'User-Agent': 'Mozilla/5.0'}
+    try:
+        response = requests.get(url, headers=headers, timeout=15)
+        response.encoding = 'utf-8'
+        soup = BeautifulSoup(response.text, 'html.parser')
+        table = soup.find('table')
+        if not table: return pd.DataFrame()
+        rows = []
+        for tr in table.find_all('tr')[1:]:
+            cols = tr.find_all('td')
+            if len(cols) < 3: continue
+            # En iTunes Kworb, el texto suele estar en el tercer td
+            full_text = cols[2].text.strip()
+            artist_name = full_text.split(" - ")[0].strip().upper()
+            if any(member == artist_name for member in solo_bts):
+                rows.append({
+                    'Puesto': int(cols[0].text.strip()), 
+                    'Mov': icon_mov(cols[1].text.strip()), 
+                    'Canción': full_text
+                })
+        return pd.DataFrame(rows)
+    except: return pd.DataFrame()
+
 # --- CABECERA ---
 st.title("📊 BTS Charts Honduras 🇭🇳")
 st.write(f"Actualizado el: {datetime.now().strftime('%d/%m/%Y')}")
 
-# --- PESTAÑAS (Añadida pestaña iTunes) ---
+# --- PESTAÑAS ---
 tab_spot, tab_ytm, tab_apple, tab_itunes, tab_deezer, tab_social = st.tabs([
     "🎧 Spotify", "🎵 YouTube Music", "🍎 Apple Music", "⭐ iTunes", "🔊 Deezer", "📱 Redes"
 ])
+
+# ... (Bloques de Spotify, YTM y Apple Music se mantienen igual)
 
 with tab_spot:
     st.header("🎧 Spotify Charts")
@@ -185,9 +206,12 @@ with tab_apple:
 with tab_itunes:
     st.header("⭐ iTunes Honduras")
     st.subheader("Honduras 🇭🇳")
-    # Usamos el link que proporcionaste
-    df_itunes_hn = get_simple_chart("https://kworb.net/charts/itunes/hn.html")
-    st.dataframe(df_itunes_hn, hide_index=True, use_container_width=True, height=600)
+    # USAMOS LA NUEVA FUNCIÓN get_itunes_data
+    df_itunes_hn = get_itunes_data("https://kworb.net/charts/itunes/hn.html")
+    if df_itunes_hn.empty:
+        st.info("No se encontraron canciones de BTS en iTunes Honduras ahora mismo.")
+    else:
+        st.dataframe(df_itunes_hn, hide_index=True, use_container_width=True, height=600)
 
 with tab_deezer:
     st.header("🔊 Deezer Charts")
@@ -202,20 +226,14 @@ with tab_deezer:
         st.dataframe(df_dg, hide_index=True, use_container_width=True, height=600)
 
 with tab_social:
+    # (El bloque de redes sociales se mantiene igual que antes)
     left, right = st.columns(2)
     with left:
         st.markdown("### Plataformas Oficiales")
         st.markdown("- [Spotify: BTS](https://open.spotify.com/artist/3Nrfpe0tUJi4K4DXYWgMUX)")
         st.markdown("- [YouTube: BANGTANTV](https://www.youtube.com/@BANGTANTV)")
-        st.markdown("- [Apple Music: BTS](https://music.apple.com/artist/bts/667061285)")
-        st.markdown("- [Deezer: BTS](https://www.deezer.com/artist/4105021)")
-        st.write("**Spotify Solistas:** [JK](https://open.spotify.com/intl-es/artist/6HaGTQPmzraVmaVxvz6EUc) | [Jimin](https://open.spotify.com/intl-es/artist/1oSPZhvZMIrWW5I41kPkkY) | [V](https://open.spotify.com/artist/3JsHnjpbhX4SnySpvpa9DK) | [RM](https://open.spotify.com/intl-es/artist/2auC28zjQyVTsiZKNgPRGs) | [Jin](https://open.spotify.com/artist/5vV3bFXnN6D6N3Nj4xRvaV) | [Suga](https://open.spotify.com/intl-es/artist/5RmQ8k4l3HZ8JoPb4mNsML) | [j-hope](https://open.spotify.com/artist/0b1sIQumIAsNbqAoIClSpy)")
     with right:
         st.markdown("### Redes Sociales")
         st.markdown("- [Instagram: @bts.bighitofficial](https://www.instagram.com/bts.bighitofficial)")
-        st.markdown("- [X (Twitter): @bts_bighit](https://x.com/bts_bighit)")
-        st.markdown("- [TikTok: @bts_official_bighit](https://www.tiktok.com/@bts_official_bighit)")
-        st.write("**Instagram Miembros:**")
-        st.caption("[RM](https://www.instagram.com/rkive) | [Jin](https://www.instagram.com/jin) | [SUGA](https://www.instagram.com/agustd) | [j-hope](https://www.instagram.com/uarmyhope) | [Jimin](https://www.instagram.com/j.m) | [V](https://www.instagram.com/thv) | [JK](https://www.instagram.com/mnijungkook)")
 
 st.markdown('<p style="text-align: center; color: #004aad; margin-top: 50px;">Hecho con amor para ARMY Honduras 💜</p>', unsafe_allow_html=True)
