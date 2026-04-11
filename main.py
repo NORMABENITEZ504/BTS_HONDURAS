@@ -32,10 +32,20 @@ if bin_str:
         background-attachment: fixed;
     }}
 
+    /* --- FORZAR TABLAS COMPLETAS SIN SCROLL --- */
+    [data-testid="stDataFrame"] > div {{
+        height: auto !important;
+        min-height: 200px;
+    }}
+    
+    .stDataFrame iframe {{
+        height: 100% !important;
+    }}
+
     /* --- ESPACIADO Y ESTILO DE PESTAÑAS --- */
     .stTabs {{
-        margin-top: 30px !important; /* Espacio arriba de las pestañas */
-        margin-bottom: 30px !important; /* Espacio abajo de las pestañas */
+        margin-top: 30px !important;
+        margin-bottom: 30px !important;
     }}
 
     .stTabs [data-baseweb="tab-list"] {{
@@ -53,8 +63,8 @@ if bin_str:
 
     /* --- ESTILO DE TABLAS --- */
     [data-testid="stDataFrame"] {{
-        margin-top: 20px !important; /* Espacio arriba de cada tabla */
-        margin-bottom: 40px !important; /* Espacio abajo de cada tabla */
+        margin-top: 20px !important;
+        margin-bottom: 40px !important;
     }}
 
     [data-testid="stDataFrame"] td {{
@@ -77,8 +87,8 @@ if bin_str:
         display: inline-block !important;
         border-left: 5px solid #004aad !important;
         font-weight: bold !important;
-        margin-bottom: 25px !important; /* ESPACIO DEBAJO DE TÍTULOS */
-        margin-top: 15px !important; /* ESPACIO ARRIBA DE TÍTULOS */
+        margin-bottom: 25px !important;
+        margin-top: 15px !important;
         box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
     }}
 
@@ -174,11 +184,11 @@ with tab_spot:
     with c1:
         st.markdown("**Top Diario Honduras**")
         df_hd = get_kworb_data("https://kworb.net/spotify/country/hn_daily.html", "spotifydaily")
-        st.dataframe(df_hd, hide_index=True, use_container_width=True)
+        st.dataframe(df_hd, hide_index=True, use_container_width=True, height=None)
     with c2:
         st.markdown("**Top Semanal Honduras**")
         df_hw = get_kworb_data("https://kworb.net/spotify/country/hn_weekly.html", "spotifyweekly")
-        st.dataframe(df_hw, hide_index=True, use_container_width=True)
+        st.dataframe(df_hw, hide_index=True, use_container_width=True, height=None)
 
     st.divider()
 
@@ -187,43 +197,39 @@ with tab_spot:
     with c3:
         st.markdown("**Top Diario Global**")
         df_gd = get_kworb_data("https://kworb.net/spotify/country/global_daily.html", "spotifydaily")
-        st.dataframe(df_gd, hide_index=True, use_container_width=True)
+        st.dataframe(df_gd, hide_index=True, use_container_width=True, height=None)
     with c4:
         st.markdown("**Top Semanal Global**")
         df_gw = get_kworb_data("https://kworb.net/spotify/country/global_weekly.html", "spotifyweekly")
-        st.dataframe(df_gw, hide_index=True, use_container_width=True)
+        st.dataframe(df_gw, hide_index=True, use_container_width=True, height=None)
 
 with tab_ytm:
     st.header("🎵 YouTube Music Honduras")
     fecha_update_ytm = "11 de abril 2026"
-    # LISTA VACÍA PARA HOY
     data_yt_diario = [] 
-    
     st.write(f"Última actualización: **{fecha_update_ytm}**")
-    
     col_d, col_w = st.columns(2)
     with col_d:
         st.subheader("Top diario")
         if not data_yt_diario:
             st.warning("Hoy no hay canciones en el chart diario.")
         else:
-            st.dataframe(pd.DataFrame(data_yt_diario), hide_index=True, use_container_width=True)
-    
+            st.dataframe(pd.DataFrame(data_yt_diario), hide_index=True, use_container_width=True, height=None)
     with col_w:
         st.subheader("Top semanal")
         st.info("No hay entradas en el chart semanal.")
-        
+
 with tab_apple:
     st.header("🍎 Apple Music Charts")
     ca1, ca2 = st.columns(2)
     with ca1:
         st.subheader("Honduras 🇭🇳")
         df_ah = get_simple_chart("https://kworb.net/charts/apple_s/hn.html")
-        st.dataframe(df_ah, hide_index=True, use_container_width=True)
+        st.dataframe(df_ah, hide_index=True, use_container_width=True, height=None)
     with ca2:
         st.subheader("Global 🌍")
         df_ag = get_simple_chart("https://kworb.net/apple_songs/")
-        st.dataframe(df_ag, hide_index=True, use_container_width=True)
+        st.dataframe(df_ag, hide_index=True, use_container_width=True, height=None)
 
 with tab_deezer:
     st.header("🔊 Deezer Charts")
@@ -231,11 +237,11 @@ with tab_deezer:
     with cd1:
         st.subheader("Honduras 🇭🇳")
         df_dh = get_simple_chart("https://kworb.net/charts/deezer/hn.html")
-        st.dataframe(df_dh, hide_index=True, use_container_width=True)
+        st.dataframe(df_dh, hide_index=True, use_container_width=True, height=None)
     with cd2:
         st.subheader("Global 🌍")
         df_dg = get_simple_chart("https://kworb.net/charts/deezer/ww.html")
-        st.dataframe(df_dg, hide_index=True, use_container_width=True)
+        st.dataframe(df_dg, hide_index=True, use_container_width=True, height=None)
 
 with tab_social:
     left, right = st.columns(2)
