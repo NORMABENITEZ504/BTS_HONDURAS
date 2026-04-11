@@ -195,20 +195,24 @@ with tab_spot:
 
 with tab_ytm:
     st.header("🎵 YouTube Music Honduras")
-    fecha_update_ytm = "8 de abril 2026"
+    fecha_update_ytm = "11 de abril 2026"
+    # LISTA VACÍA PARA HOY
+    data_yt_diario = [] 
+    
     st.write(f"Última actualización: **{fecha_update_ytm}**")
-    data_yt_diario = [
-     st.info("No hay entradas de BTS en el chart semanal para esta fecha.")
+    
+    col_d, col_w = st.columns(2)
+    with col_d:
+        st.subheader("Top diario")
+        if not data_yt_diario:
+            st.warning("Hoy no hay canciones en el chart diario.")
+        else:
+            st.dataframe(pd.DataFrame(data_yt_diario), hide_index=True, use_container_width=True)
+    
+    with col_w:
+        st.subheader("Top semanal")
+        st.info("No hay entradas en el chart semanal.")
         
-    col_manual_d, col_manual_w = st.columns(2)
-    with col_manual_d:
-        st.subheader("Top diario de canciones")
-        df_yt_m_daily = pd.DataFrame(data_yt_diario)
-        st.dataframe(df_yt_m_daily, hide_index=True, use_container_width=True)
-    with col_manual_w:
-        st.subheader("Top semanal de canciones")
-        st.info("No hay entradas de BTS en el chart semanal para esta fecha.")
-
 with tab_apple:
     st.header("🍎 Apple Music Charts")
     ca1, ca2 = st.columns(2)
