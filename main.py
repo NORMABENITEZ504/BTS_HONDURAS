@@ -24,27 +24,26 @@ bin_str = get_base64(image_path)
 if bin_str:
     st.markdown(f'''
     <style>
-    /* Fondo de la aplicación */
     .stApp {{
         background-image: url("data:image/png;base64,{bin_str}");
         background-size: repeat;
         background-attachment: fixed;
     }}
 
-    /* Estilo de las celdas de tablas (Celeste 70% transparente) */
+    /* Estilo de las celdas de tablas */
     [data-testid="stDataFrame"] td {{
         background-color: rgba(173, 216, 230, 0.7) !important;
         color: #000000 !important;
         font-weight: bold !important;
     }}
 
-    /* Estilo de encabezados de tablas (Celeste 50% transparente) */
+    /* Estilo de encabezados de tablas */
     [data-testid="stDataFrame"] th {{
         background-color: rgba(173, 216, 230, 0.5) !important;
         color: #004aad !important;
     }}
 
-    /* Estilo de Pestañas (Fondo blanco) */
+    /* Estilo de Pestañas */
     .stTabs [data-baseweb="tab-list"] {{
         background-color: rgba(255, 255, 255, 0.85) !important;
         padding: 10px !important;
@@ -57,7 +56,7 @@ if bin_str:
         font-weight: bold !important;
     }}
 
-    /* Títulos y Subtítulos con fondo blanco y letra azul opaco */
+    /* Títulos y Subtítulos */
     h1, h2, h3, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {{
         background-color: rgba(255, 255, 255, 0.85) !important;
         color: #004aad !important;
@@ -66,8 +65,6 @@ if bin_str:
         display: inline-block !important;
         border-left: 5px solid #004aad !important;
         margin-bottom: 25px !important;
-        margin-top: 15px !important;
-        box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
     }}
 
     /* Secciones de Redes y Columnas */
@@ -77,22 +74,11 @@ if bin_str:
         border-radius: 15px !important;
         border: 1px solid #004aad !important;
     }}
-
-    /* Pie de página */
-    .stMarkdown p[style*="text-align: center"] {{
-        background-color: rgba(255, 255, 255, 0.85) !important;
-        color: #004aad !important;
-        padding: 10px 20px !important;
-        border-radius: 10px !important;
-        display: inline-block !important;
-        border: 1px solid #004aad !important;
-        margin-top: 50px !important;
-    }}
     </style>
     ''', unsafe_allow_html=True)
 
-# --- VARIABLES Y FUNCIONES DE DATOS ---
-solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D", "JUNGKOOK"]
+# --- FUNCIONES DE EXTRACCIÓN DE DATOS ---
+solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
 
 def icon_mov(val):
     val = str(val).strip()
@@ -114,7 +100,8 @@ def get_kworb_data(url, table_id):
             cols = tr.find_all('td')
             if len(cols) < 8: continue
             full_text = cols[2].get_text(separator=" ").strip()
-            if any(member in full_text.upper() for member in solo_bts):
+            artist_name = full_text.split(" - ")[0].strip().upper()
+            if any(member == artist_name for member in solo_bts):
                 rows.append({
                     'Puesto': int(cols[0].text.strip()), 'Mov': icon_mov(cols[1].text.strip()),
                     'Canción': full_text, 'Streams': cols[6].text.strip(), 'Evolución': cols[7].text.strip()
@@ -135,30 +122,9 @@ def get_simple_chart(url):
             cols = tr.find_all('td')
             if len(cols) < 3: continue
             full_text = cols[2].get_text(separator=" ").strip()
-            if any(member in full_text.upper() for member in solo_bts):
+            artist_name = full_text.split(" - ")[0].strip().upper()
+            if any(member == artist_name for member in solo_bts):
                 rows.append({'Puesto': int(cols[0].text.strip()), 'Mov': icon_mov(cols[1].text.strip()), 'Canción': full_text})
-        return pd.DataFrame(rows)
-    except: return pd.DataFrame()
-
-def get_itunes_data(url):
-    headers = {'User-Agent': 'Mozilla/5.0'}
-    try:
-        response = requests.get(url, headers=headers, timeout=15)
-        response.encoding = 'utf-8'
-        soup = BeautifulSoup(response.text, 'html.parser')
-        table = soup.find('table')
-        if not table: return pd.DataFrame()
-        rows = []
-        for tr in table.find_all('tr')[1:]:
-            cols = tr.find_all('td')
-            if len(cols) < 3: continue
-            full_text = cols[2].get_text(separator=" ").strip()
-            if any(member in full_text.upper() for member in solo_bts):
-                rows.append({
-                    'Puesto': cols[0].text.strip(), 
-                    'Mov': icon_mov(cols[1].text.strip()), 
-                    'Canción': full_text
-                })
         return pd.DataFrame(rows)
     except: return pd.DataFrame()
 
@@ -167,8 +133,8 @@ st.title("📊 BTS Charts Honduras 🇭🇳")
 st.write(f"Actualizado el: {datetime.now().strftime('%d/%m/%Y')}")
 
 # --- PESTAÑAS ---
-tab_spot, tab_ytm, tab_apple, tab_itunes, tab_deezer, tab_social = st.tabs([
-    "🎧 Spotify", "🎵 YouTube Music", "🍎 Apple Music", "⭐ iTunes", "🔊 Deezer", "📱 Redes"
+tab_spot, tab_ytm, tab_apple, tab_deezer, tab_social = st.tabs([
+    "🎧 Spotify", "🎵 YouTube Music", "🍎 Apple Music", "🔊 Deezer", "📱 Redes"
 ])
 
 with tab_spot:
@@ -220,15 +186,6 @@ with tab_apple:
         st.subheader("Global 🌍")
         df_ag = get_simple_chart("https://kworb.net/apple_songs/")
         st.dataframe(df_ag, hide_index=True, use_container_width=True, height=600)
-
-with tab_itunes:
-    st.header("⭐ iTunes Top Songs")
-    st.subheader("Honduras 🇭🇳")
-    df_itunes = get_itunes_data("https://kworb.net/charts/itunes/hn.html")
-    if df_itunes.empty:
-        st.warning("No se detectan entradas de BTS/Solistas en el Top actual de iTunes Honduras.")
-    else:
-        st.dataframe(df_itunes, hide_index=True, use_container_width=True, height=600)
 
 with tab_deezer:
     st.header("🔊 Deezer Charts")
