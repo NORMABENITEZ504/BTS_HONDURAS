@@ -184,7 +184,36 @@ with tab_apple:
     data_apple_manual = [
         {"Puesto": 84, "Mov": "🟩 +15", "Canción": "BTS - SWIM"},
 ]
+    st.header("🍎 Apple Music Charts")
     
+    # Datos Globales que proporcionaste
+    data_apple_global = [
+        {"Puesto": 3, "Mov": "➡️ =", "Canción": "SWIM - BTS"},
+        {"Puesto": 10, "Mov": "🟩 +1", "Canción": "2.0 - BTS"},
+        {"Puesto": 16, "Mov": "🟥 -1", "Canción": "Body to Body - BTS"},
+        {"Puesto": 28, "Mov": "🟥 -1", "Canción": "Hooligan - BTS"},
+        {"Puesto": 45, "Mov": "🟥 -8", "Canción": "NORMAL - BTS"},
+        {"Puesto": 48, "Mov": "🟥 -8", "Canción": "FYA - BTS"},
+        {"Puesto": 63, "Mov": "🟥 -9", "Canción": "Aliens - BTS"},
+        {"Puesto": 72, "Mov": "🟥 -9", "Canción": "Like Animals - BTS"},
+        {"Puesto": 94, "Mov": "🟥 -11", "Canción": "they don’t know ’bout us - BTS"},
+        {"Puesto": 98, "Mov": "🟥 -19", "Canción": "Merry Go Round - BTS"}
+    ]
+
+    col_ah, col_ag = st.columns(2)
+    
+    with col_ah:
+        st.subheader("Honduras 🇭🇳")
+        # Aquí puedes poner los de Honduras cuando los tengas, por ahora dejo el aviso
+        st.info("Actualizando datos de Honduras...")
+            
+    with col_ag:
+        st.subheader("Global 🌍")
+        if not data_apple_global:
+            st.warning("No se detectan entradas en Apple Global.")
+        else:
+            df_apple_gl = pd.DataFrame(data_apple_global)
+            st.dataframe(df_apple_gl, hide_index=True, use_container_width=True, height=600)
     if not data_apple_manual:
         st.info("No hay entradas de BTS en el Top 100 de Apple Music hoy.")
     else:
