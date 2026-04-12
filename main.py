@@ -182,7 +182,7 @@ with tab_apple:
     # DATOS MANUALES (Aquí es donde tú anotas lo que ves en el link de Apple)
     # Solo cambia los números y nombres según lo que veas en el link
     data_apple_manual = [
-        {"Puesto": 84, "Canción": "BTS - SWIM"},
+        {"Puesto": 84, "Mov": "🟩 +15", "Canción": "BTS - SWIM"},
 ]
     
     if not data_apple_manual:
