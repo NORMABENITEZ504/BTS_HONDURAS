@@ -176,16 +176,7 @@ with tab_ytm:
         st.info("No hay entradas en el chart semanal.")
 
 with tab_apple:
-    st.header("🍎 Apple Music Top 100")
-    st.subheader("Honduras 🇭🇳")
-    
-    # DATOS MANUALES (Aquí es donde tú anotas lo que ves en el link de Apple)
-    # Solo cambia los números y nombres según lo que veas en el link
-    data_apple_manual = [
-        {"Puesto": 84, "Mov": "🟩 +15", "Canción": "BTS - SWIM"},
-]
-    st.header("🍎 Apple Music Charts")
-    
+
     # Datos Globales que proporcionaste
     data_apple_global = [
         {"Puesto": 3, "Mov": "➡️ =", "Canción": "SWIM - BTS"},
@@ -204,8 +195,15 @@ with tab_apple:
     
     with col_ah:
         st.subheader("Honduras 🇭🇳")
-        # Aquí puedes poner los de Honduras cuando los tengas, por ahora dejo el aviso
-        st.info("Actualizando datos de Honduras...")
+           st.header("🍎 Apple Music Top 100")
+    st.subheader("Honduras 🇭🇳")
+    
+    # DATOS MANUALES (Aquí es donde tú anotas lo que ves en el link de Apple)
+    # Solo cambia los números y nombres según lo que veas en el link
+    data_apple_manual = [
+        {"Puesto": 84, "Mov": "🟩 +15", "Canción": "BTS - SWIM"},
+]
+    st.header("🍎 Apple Music Charts")
             
     with col_ag:
         st.subheader("Global 🌍")
@@ -219,8 +217,6 @@ with tab_apple:
     else:
         df_apple = pd.DataFrame(data_apple_manual)
         st.dataframe(df_apple, hide_index=True, use_container_width=True, height=400)
-    
-    st.caption("Nota: Datos verificados manualmente desde la playlist oficial de Apple Music Honduras.")
     
 with tab_itunes:
     st.header("⭐ iTunes Top Songs")
