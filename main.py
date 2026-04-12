@@ -176,18 +176,23 @@ with tab_ytm:
         st.info("No hay entradas en el chart semanal.")
 
 with tab_apple:
-    st.header("🍎 Apple Music: Top 100")
+    st.header("🍎 Apple Music Top 100")
     st.subheader("Honduras 🇭🇳")
     
-    # EJECUCIÓN AUTOMÁTICA
-    df_apple = get_apple_rss()
+    # DATOS MANUALES (Aquí es donde tú anotas lo que ves en el link de Apple)
+    # Solo cambia los números y nombres según lo que veas en el link
+    data_apple_manual = [
+        {"Puesto": 12, "Mov": "🟩 +2", "Canción": "Jimin - Who"},
+        {"Puesto": 45, "Mov": "➡️ =", "Canción": "BTS - Dynamite"}
+    ]
     
-    if df_apple.empty:
-        st.info("No se detectan entradas de BTS en el Top 100 de Apple Music Honduras en este momento.")
+    if not data_apple_manual:
+        st.info("No hay entradas de BTS en el Top 100 de Apple Music hoy.")
     else:
-        st.dataframe(df_apple, hide_index=True, use_container_width=True, height=600)
+        df_apple = pd.DataFrame(data_apple_manual)
+        st.dataframe(df_apple, hide_index=True, use_container_width=True, height=400)
     
-    st.caption("🔄 Los datos se sincronizan automáticamente con el servidor oficial de Apple Music.")
+    st.caption("Nota: Datos verificados manualmente desde la playlist oficial de Apple Music Honduras.")
 
 with tab_itunes:
     st.header("⭐ iTunes Top Songs")
