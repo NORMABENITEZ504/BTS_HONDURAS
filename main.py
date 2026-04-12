@@ -176,8 +176,9 @@ with tab_ytm:
         st.info("No hay entradas en el chart semanal.")
 
 with tab_apple:
+    st.header("🍎 Apple Music Charts")
 
-    # Datos Globales que proporcionaste
+    # 1. Definición de Datos (Global y Honduras)
     data_apple_global = [
         {"Puesto": 3, "Mov": "➡️ =", "Canción": "SWIM - BTS"},
         {"Puesto": 10, "Mov": "🟩 +1", "Canción": "2.0 - BTS"},
@@ -191,20 +192,23 @@ with tab_apple:
         {"Puesto": 98, "Mov": "🟥 -19", "Canción": "Merry Go Round - BTS"}
     ]
 
-    col_ah, col_ag = st.columns(2)
-    
-    with col_ah:
-        st.subheader("Honduras 🇭🇳")
-           st.header("🍎 Apple Music Top 100")
-    st.subheader("Honduras 🇭🇳")
-    
-    # DATOS MANUALES (Aquí es donde tú anotas lo que ves en el link de Apple)
-    # Solo cambia los números y nombres según lo que veas en el link
     data_apple_manual = [
         {"Puesto": 84, "Mov": "🟩 +15", "Canción": "BTS - SWIM"},
-]
-    st.header("🍎 Apple Music Charts")
+    ]
+
+    # 2. Creación de Columnas
+    col_ah, col_ag = st.columns(2)
+    
+    # --- COLUMNA HONDURAS ---
+    with col_ah:
+        st.subheader("Honduras 🇭🇳")
+        if not data_apple_manual:
+            st.info("No hay entradas de BTS en el Top 100 de Apple Music Honduras hoy.")
+        else:
+            df_apple_hn = pd.DataFrame(data_apple_manual)
+            st.dataframe(df_apple_hn, hide_index=True, use_container_width=True, height=600)
             
+    # --- COLUMNA GLOBAL ---
     with col_ag:
         st.subheader("Global 🌍")
         if not data_apple_global:
@@ -212,11 +216,6 @@ with tab_apple:
         else:
             df_apple_gl = pd.DataFrame(data_apple_global)
             st.dataframe(df_apple_gl, hide_index=True, use_container_width=True, height=600)
-    if not data_apple_manual:
-        st.info("No hay entradas de BTS en el Top 100 de Apple Music hoy.")
-    else:
-        df_apple = pd.DataFrame(data_apple_manual)
-        st.dataframe(df_apple, hide_index=True, use_container_width=True, height=400)
     
 with tab_itunes:
     st.header("⭐ iTunes Top Songs")
