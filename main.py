@@ -176,28 +176,23 @@ with tab_ytm:
         st.info("No hay entradas en el chart semanal.")
 
 with tab_apple:
-    st.header("🍎 Apple Music Charts")
-    st.info("Extrayendo datos de b-cd.app...")
+    st.header("🍎 Apple Music Top 100")
+    st.subheader("Honduras 🇭🇳")
     
-    col_ah, col_ag = st.columns(2)
+    # DATOS MANUALES (Aquí es donde tú anotas lo que ves en el link de Apple)
+    # Solo cambia los números y nombres según lo que veas en el link
+    data_apple_manual = [
+        {"Puesto": 84, "Mov": "🟩 +15", "Canción": "BTS - SWIM"},
+]
     
-    with col_ah:
-        st.subheader("Honduras 🇭🇳")
-        # Usamos la nueva función con el link que me pasaste
-        df_apple_hn = get_apple_bcd("https://www.b-cd.app/apple-music", "Honduras")
-        if df_apple_hn.empty:
-            st.warning("No se detectan entradas en Apple Honduras.")
-        else:
-            st.dataframe(df_apple_hn, hide_index=True, use_container_width=True, height=600)
-            
-    with col_ag:
-        st.subheader("Global 🌍")
-        df_apple_gl = get_apple_bcd("https://www.b-cd.app/apple-music", "Global")
-        if df_apple_gl.empty:
-            st.warning("No se detectan entradas en Apple Global.")
-        else:
-            st.dataframe(df_apple_gl, hide_index=True, use_container_width=True, height=600)
-
+    if not data_apple_manual:
+        st.info("No hay entradas de BTS en el Top 100 de Apple Music hoy.")
+    else:
+        df_apple = pd.DataFrame(data_apple_manual)
+        st.dataframe(df_apple, hide_index=True, use_container_width=True, height=400)
+    
+    st.caption("Nota: Datos verificados manualmente desde la playlist oficial de Apple Music Honduras.")
+    
 with tab_itunes:
     st.header("⭐ iTunes Top Songs")
     st.subheader("Honduras 🇭🇳")
