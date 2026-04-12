@@ -29,34 +29,25 @@ if bin_str:
         background-size: repeat;
         background-attachment: fixed;
     }}
-
-    /* Estilo de las celdas de tablas */
     [data-testid="stDataFrame"] td {{
         background-color: rgba(173, 216, 230, 0.7) !important;
         color: #000000 !important;
         font-weight: bold !important;
     }}
-
-    /* Estilo de encabezados de tablas */
     [data-testid="stDataFrame"] th {{
         background-color: rgba(173, 216, 230, 0.5) !important;
         color: #004aad !important;
     }}
-
-    /* Estilo de Pestañas */
     .stTabs [data-baseweb="tab-list"] {{
         background-color: rgba(255, 255, 255, 0.85) !important;
         padding: 10px !important;
         border-radius: 15px 15px 0px 0px !important;
         border-bottom: 3px solid #004aad !important;
     }}
-    
     .stTabs [data-baseweb="tab-list"] button p {{
         color: #004aad !important;
         font-weight: bold !important;
     }}
-
-    /* Títulos y Subtítulos */
     h1, h2, h3, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {{
         background-color: rgba(255, 255, 255, 0.85) !important;
         color: #004aad !important;
@@ -66,8 +57,6 @@ if bin_str:
         border-left: 5px solid #004aad !important;
         margin-bottom: 25px !important;
     }}
-
-    /* Secciones de Redes y Columnas */
     [data-testid="stColumn"] {{
         background-color: rgba(255, 255, 255, 0.85) !important;
         padding: 20px !important;
@@ -78,7 +67,7 @@ if bin_str:
     ''', unsafe_allow_html=True)
 
 # --- FUNCIONES DE EXTRACCIÓN DE DATOS ---
-solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
+solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D", "JUNGKOOK"]
 
 def icon_mov(val):
     val = str(val).strip()
@@ -100,8 +89,7 @@ def get_kworb_data(url, table_id):
             cols = tr.find_all('td')
             if len(cols) < 8: continue
             full_text = cols[2].get_text(separator=" ").strip()
-            artist_name = full_text.split(" - ")[0].strip().upper()
-            if any(member == artist_name for member in solo_bts):
+            if any(member in full_text.upper() for member in solo_bts):
                 rows.append({
                     'Puesto': int(cols[0].text.strip()), 'Mov': icon_mov(cols[1].text.strip()),
                     'Canción': full_text, 'Streams': cols[6].text.strip(), 'Evolución': cols[7].text.strip()
@@ -122,10 +110,32 @@ def get_simple_chart(url):
             cols = tr.find_all('td')
             if len(cols) < 3: continue
             full_text = cols[2].get_text(separator=" ").strip()
-            artist_name = full_text.split(" - ")[0].strip().upper()
-            if any(member == artist_name for member in solo_bts):
+            if any(member in full_text.upper() for member in solo_bts):
                 rows.append({'Puesto': int(cols[0].text.strip()), 'Mov': icon_mov(cols[1].text.strip()), 'Canción': full_text})
         return pd.DataFrame(rows)
+    except: return pd.DataFrame()
+
+# --- FUNCIÓN NUEVA PARA B-CD.APP ---
+def get_apple_bcd_data(url):
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
+    try:
+        response = requests.get(url, headers=headers, timeout=15)
+        response.encoding = 'utf-8'
+        soup = BeautifulSoup(response.text, 'html.parser')
+        rows = []
+        tables = soup.find_all('table')
+        for table in tables:
+            for tr in table.find_all('tr')[1:]:
+                text = tr.get_text().upper()
+                if any(m in text for m in solo_bts):
+                    cols = tr.find_all('td')
+                    if len(cols) >= 3:
+                        rows.append({
+                            'Puesto': cols[0].text.strip().replace("#", ""),
+                            'Mov': icon_mov(cols[1].text.strip()),
+                            'Canción': cols[2].get_text(separator=" ").strip()
+                        })
+        return pd.DataFrame(rows).drop_duplicates()
     except: return pd.DataFrame()
 
 # --- CABECERA ---
@@ -133,8 +143,8 @@ st.title("📊 BTS Charts Honduras 🇭🇳")
 st.write(f"Actualizado el: {datetime.now().strftime('%d/%m/%Y')}")
 
 # --- PESTAÑAS ---
-tab_spot, tab_ytm, tab_apple, tab_itunes, tab_deezer, tab_social = st.tabs([
-    "🎧 Spotify", "🎵 YouTube Music", "🍎 Apple Music", "⭐ iTunes", "🔊 Deezer", "📱 Redes"
+tab_spot, tab_ytm, tab_apple, tab_itunes, tab_deezer, tab_playlist, tab_social = st.tabs([
+    "🎧 Spotify", "🎵 YouTube Music", "🍎 Apple Music", "⭐ iTunes", "🔊 Deezer", "🎬 Playlist", "📱 Redes"
 ])
 
 with tab_spot:
@@ -143,42 +153,18 @@ with tab_spot:
     c1, c2 = st.columns(2)
     with c1:
         st.markdown("**Top Diario Honduras**")
-        df_hd = get_kworb_data("https://kworb.net/spotify/country/hn_daily.html", "spotifydaily")
-        st.dataframe(df_hd, hide_index=True, use_container_width=True, height=600)
+        st.dataframe(get_kworb_data("https://kworb.net/spotify/country/hn_daily.html", "spotifydaily"), hide_index=True, use_container_width=True, height=600)
     with c2:
         st.markdown("**Top Semanal Honduras**")
-        df_hw = get_kworb_data("https://kworb.net/spotify/country/hn_weekly.html", "spotifyweekly")
-        st.dataframe(df_hw, hide_index=True, use_container_width=True, height=600)
-    st.divider()
-    st.subheader("Global 🌍")
-    c3, c4 = st.columns(2)
-    with c3:
-        st.markdown("**Top Diario Global**")
-        df_gd = get_kworb_data("https://kworb.net/spotify/country/global_daily.html", "spotifydaily")
-        st.dataframe(df_gd, hide_index=True, use_container_width=True, height=600)
-    with c4:
-        st.markdown("**Top Semanal Global**")
-        df_gw = get_kworb_data("https://kworb.net/spotify/country/global_weekly.html", "spotifyweekly")
-        st.dataframe(df_gw, hide_index=True, use_container_width=True, height=600)
+        st.dataframe(get_kworb_data("https://kworb.net/spotify/country/hn_weekly.html", "spotifyweekly"), hide_index=True, use_container_width=True, height=600)
 
 with tab_ytm:
     st.header("🎵 YouTube Music Honduras")
-    fecha_update_ytm = "11 de abril 2026"
-    data_yt_diario = [] 
-    st.write(f"Última actualización: **{fecha_update_ytm}**")
-    col_d, col_w = st.columns(2)
-    with col_d:
-        st.subheader("Top diario")
-        if not data_yt_diario: st.warning("Hoy no hay canciones en el chart diario.")
-        else: st.dataframe(pd.DataFrame(data_yt_diario), hide_index=True, use_container_width=True, height=600)
-    with col_w:
-        st.subheader("Top semanal")
-        st.info("No hay entradas en el chart semanal.")
+    st.info("🚧 Sección en mantenimiento: Actualizando fuentes.")
 
 with tab_apple:
     st.header("🍎 Apple Music Charts")
-
-    # 1. Definición de Datos
+    
     data_apple_global = [
         {"Puesto": 3, "Mov": "➡️ =", "Canción": "SWIM - BTS"},
         {"Puesto": 10, "Mov": "🟩 +1", "Canción": "2.0 - BTS"},
@@ -191,77 +177,40 @@ with tab_apple:
         {"Puesto": 94, "Mov": "🟥 -11", "Canción": "they don’t know ’bout us - BTS"},
         {"Puesto": 98, "Mov": "🟥 -19", "Canción": "Merry Go Round - BTS"}
     ]
+    data_apple_manual = [{"Puesto": 84, "Mov": "🟩 +15", "Canción": "BTS - SWIM"}]
 
-    data_apple_manual = [
-        {"Puesto": 84, "Mov": "🟩 +15", "Canción": "BTS - SWIM"},
-    ]
-
-    # 2. Creación de Columnas
     col_ah, col_ag = st.columns(2)
-    
-    # --- COLUMNA HONDURAS ---
     with col_ah:
         st.subheader("Honduras 🇭🇳")
-        if not data_apple_manual:
-            st.info("No hay entradas de BTS en Apple Music Honduras hoy.")
-        else:
-            df_apple_hn = pd.DataFrame(data_apple_manual)
-            # Quitamos el 'height' para que se ajuste al tamaño de los datos
-            st.dataframe(df_apple_hn, hide_index=True, use_container_width=True)
+        if not data_apple_manual: st.info("No hay entradas de BTS hoy.")
+        else: st.dataframe(pd.DataFrame(data_apple_manual), hide_index=True, use_container_width=True)
             
-    # --- COLUMNA GLOBAL ---
     with col_ag:
         st.subheader("Global 🌍")
-        if not data_apple_global:
-            st.warning("No se detectan entradas en Apple Global.")
-        else:
-            df_apple_gl = pd.DataFrame(data_apple_global)
-            # Quitamos el 'height' para que se ajuste al tamaño de los datos
-            st.dataframe(df_apple_gl, hide_index=True, use_container_width=True)
-    
+        st.dataframe(pd.DataFrame(data_apple_global), hide_index=True, use_container_width=True)
+
 with tab_itunes:
     st.header("⭐ iTunes Top Songs")
-    st.subheader("Honduras 🇭🇳")
-    
-    # Mensaje de "En proceso" con estilo
-    st.info("🚧 **Sección en proceso:** Estamos ajustando la extracción de datos para iTunes Honduras.")
-    
-    # Opcional: Puedes dejar un spinner o un mensaje de carga
-    with st.spinner("Preparando actualización de iTunes..."):
-        st.write("Próximamente verás aquí el Top Songs de iTunes Honduras.")
-    
-    # He comentado el código anterior por si lo necesitas luego, 
-    # pero ahora no se mostrará la tabla vacía.
-    # df_itunes_hn = get_itunes_data("https://kworb.net/charts/itunes/hn.html")
-    # st.dataframe(df_itunes_hn, hide_index=True, use_container_width=True, height=600)
+    st.info("🚧 Sección en proceso de ajuste.")
 
 with tab_deezer:
     st.header("🔊 Deezer Charts")
     cd1, cd2 = st.columns(2)
     with cd1:
         st.subheader("Honduras 🇭🇳")
-        df_dh = get_simple_chart("https://kworb.net/charts/deezer/hn.html")
-        st.dataframe(df_dh, hide_index=True, use_container_width=True, height=600)
+        st.dataframe(get_simple_chart("https://kworb.net/charts/deezer/hn.html"), hide_index=True, use_container_width=True)
     with cd2:
         st.subheader("Global 🌍")
-        df_dg = get_simple_chart("https://kworb.net/charts/deezer/ww.html")
-        st.dataframe(df_dg, hide_index=True, use_container_width=True, height=600)
+        st.dataframe(get_simple_chart("https://kworb.net/charts/deezer/ww.html"), hide_index=True, use_container_width=True)
+
+with tab_playlist:
+    st.header("🎬 Generador de Playlists")
+    opcion = st.selectbox("Elige una playlist:", ["Top BTS Honduras", "Solistas Focus"])
+    links = {"Top BTS Honduras": "https://open.spotify.com/intl-es/artist/1oSPZhvZMIrWW5I41kPkkY3", "Solistas Focus": "https://open.spotify.com/intl-es/artist/1oSPZhvZMIrWW5I41kPkkY3"}
+    st.markdown(f'<iframe src="{links[opcion]}" width="100%" height="380" frameborder="0" allow="encrypted-media"></iframe>', unsafe_allow_html=True)
 
 with tab_social:
-    left, right = st.columns(2)
-    with left:
-        st.markdown("### Plataformas Oficiales")
-        st.markdown("- [Spotify: BTS](https://open.spotify.com/artist/3Nrfpe0tUJi4K4DXYWgMUX)")
-        st.markdown("- [YouTube: BANGTANTV](https://www.youtube.com/@BANGTANTV)")
-        st.markdown("- [Apple Music: BTS](https://music.apple.com/artist/bts/667061285)")
-        st.markdown("- [Deezer: BTS](https://www.deezer.com/artist/4105021)")
-        st.write("**Spotify Solistas:** [JK](https://open.spotify.com/intl-es/artist/6HaGTQPmzraVmaVxvz6EUc) | [Jimin](https://open.spotify.com/intl-es/artist/1oSPZhvZMIrWW5I41kPkkY) | [V](https://open.spotify.com/artist/3JsHnjpbhX4SnySpvpa9DK) | [RM](https://open.spotify.com/intl-es/artist/2auC28zjQyVTsiZKNgPRGs) | [Jin](https://open.spotify.com/artist/5vV3bFXnN6D6N3Nj4xRvaV) | [Suga](https://open.spotify.com/intl-es/artist/5RmQ8k4l3HZ8JoPb4mNsML) | [j-hope](https://open.spotify.com/artist/0b1sIQumIAsNbqAoIClSpy)")
-    with right:
-        st.markdown("### Redes Sociales")
-        st.markdown("- [Instagram: @bts.bighitofficial](https://www.instagram.com/bts.bighitofficial)")
-        st.markdown("- [X (Twitter): @bts_bighit](https://x.com/bts_bighit)")
-        st.markdown("- [TikTok: @bts_official_bighit](https://www.tiktok.com/@bts_official_bighit)")
-        st.write("**Instagram Miembros:**")
-        st.caption("[RM](https://www.instagram.com/rkive) | [Jin](https://www.instagram.com/jin) | [SUGA](https://www.instagram.com/agustd) | [j-hope](https://www.instagram.com/uarmyhope) | [Jimin](https://www.instagram.com/j.m) | [V](https://www.instagram.com/thv) | [JK](https://www.instagram.com/mnijungkook)")
+    st.header("📱 Redes Sociales")
+    st.write("Sigue las cuentas oficiales.")
 
 st.markdown('<p style="text-align: center; color: #004aad; margin-top: 50px;">Hecho con amor para ARMY Honduras 💜</p>', unsafe_allow_html=True)
