@@ -182,9 +182,8 @@ with tab_apple:
     # DATOS MANUALES (Aquí es donde tú anotas lo que ves en el link de Apple)
     # Solo cambia los números y nombres según lo que veas en el link
     data_apple_manual = [
-        {"Puesto": 12, "Mov": "🟩 +2", "Canción": "Jimin - Who"},
-        {"Puesto": 45, "Mov": "➡️ =", "Canción": "BTS - Dynamite"}
-    ]
+        {"Puesto": 84, "Canción": "BTS - SWIM"},
+]
     
     if not data_apple_manual:
         st.info("No hay entradas de BTS en el Top 100 de Apple Music hoy.")
