@@ -176,16 +176,18 @@ with tab_ytm:
         st.info("No hay entradas en el chart semanal.")
 
 with tab_apple:
-    st.header("🍎 Apple Music Charts")
-    ca1, ca2 = st.columns(2)
-    with ca1:
-        st.subheader("Honduras 🇭🇳")
-        df_ah = get_simple_chart("https://kworb.net/charts/apple_s/hn.html")
-        st.dataframe(df_ah, hide_index=True, use_container_width=True, height=600)
-    with ca2:
-        st.subheader("Global 🌍")
-        df_ag = get_simple_chart("https://kworb.net/apple_songs/")
-        st.dataframe(df_ag, hide_index=True, use_container_width=True, height=600)
+    st.header("🍎 Apple Music: Top 100")
+    st.subheader("Honduras 🇭🇳")
+    
+    # EJECUCIÓN AUTOMÁTICA
+    df_apple = get_apple_rss()
+    
+    if df_apple.empty:
+        st.info("No se detectan entradas de BTS en el Top 100 de Apple Music Honduras en este momento.")
+    else:
+        st.dataframe(df_apple, hide_index=True, use_container_width=True, height=600)
+    
+    st.caption("🔄 Los datos se sincronizan automáticamente con el servidor oficial de Apple Music.")
 
 with tab_itunes:
     st.header("⭐ iTunes Top Songs")
