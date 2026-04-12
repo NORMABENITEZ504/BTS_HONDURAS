@@ -178,7 +178,7 @@ with tab_ytm:
 with tab_apple:
     st.header("🍎 Apple Music Charts")
 
-    # 1. Definición de Datos (Global y Honduras)
+    # 1. Definición de Datos
     data_apple_global = [
         {"Puesto": 3, "Mov": "➡️ =", "Canción": "SWIM - BTS"},
         {"Puesto": 10, "Mov": "🟩 +1", "Canción": "2.0 - BTS"},
@@ -203,10 +203,11 @@ with tab_apple:
     with col_ah:
         st.subheader("Honduras 🇭🇳")
         if not data_apple_manual:
-            st.info("No hay entradas de BTS en el Top 100 de Apple Music Honduras hoy.")
+            st.info("No hay entradas de BTS en Apple Music Honduras hoy.")
         else:
             df_apple_hn = pd.DataFrame(data_apple_manual)
-            st.dataframe(df_apple_hn, hide_index=True, use_container_width=True, height=600)
+            # Quitamos el 'height' para que se ajuste al tamaño de los datos
+            st.dataframe(df_apple_hn, hide_index=True, use_container_width=True)
             
     # --- COLUMNA GLOBAL ---
     with col_ag:
@@ -215,7 +216,8 @@ with tab_apple:
             st.warning("No se detectan entradas en Apple Global.")
         else:
             df_apple_gl = pd.DataFrame(data_apple_global)
-            st.dataframe(df_apple_gl, hide_index=True, use_container_width=True, height=600)
+            # Quitamos el 'height' para que se ajuste al tamaño de los datos
+            st.dataframe(df_apple_gl, hide_index=True, use_container_width=True)
     
 with tab_itunes:
     st.header("⭐ iTunes Top Songs")
