@@ -4,7 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 import base64
-import re  # Añadimos re para filtros exactos
+import re
 
 # --- CONFIGURACIÓN DE LA PÁGINA ---
 st.set_page_config(page_title="BTS Charts Honduras 🇭🇳", page_icon="BTS_Logo.png", layout="wide")
@@ -90,10 +90,9 @@ def get_kworb_data(url, table_id):
             cols = tr.find_all('td')
             if len(cols) < 8: continue
             full_text = cols[2].get_text(separator=" ").strip()
-            artist_part = full_text.split(" - ")[0].strip().upper()
             
-            # Filtro exacto usando límites de palabra (\b) para evitar coincidencias parciales
-            if any(re.search(rf"\b{re.escape(member)}\b", artist_part) for member in solo_bts):
+            # Buscamos la palabra exacta en TODO el texto para capturar colaboraciones/feats de manera segura
+            if any(re.search(rf"\b{re.escape(member)}\b", full_text.upper()) for member in solo_bts):
                 rows.append({
                     'Puesto': int(cols[0].text.strip()), 'Mov': icon_mov(cols[1].text.strip()),
                     'Canción': full_text, 'Streams': cols[6].text.strip(), 'Evolución': cols[7].text.strip()
@@ -114,10 +113,9 @@ def get_simple_chart(url):
             cols = tr.find_all('td')
             if len(cols) < 3: continue
             full_text = cols[2].get_text(separator=" ").strip()
-            artist_part = full_text.split(" - ")[0].strip().upper()
             
-            # Filtro exacto por palabra para el artista en Deezer y Apple Music
-            if any(re.search(rf"\b{re.escape(member)}\b", artist_part) for member in solo_bts):
+            # CORRECCIÓN PARA FEATS: Filtro exacto buscando en todo el bloque de texto
+            if any(re.search(rf"\b{re.escape(member)}\b", full_text.upper()) for member in solo_bts):
                 rows.append({
                     'Puesto': int(cols[0].text.strip()), 
                     'Mov': icon_mov(cols[1].text.strip()), 
