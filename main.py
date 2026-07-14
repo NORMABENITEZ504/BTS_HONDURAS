@@ -68,7 +68,8 @@ if bin_str:
     ''', unsafe_allow_html=True)
 
 # --- VARIABLES Y FUNCIONES DE DATOS ---
-solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
+# CORRECCIÓN: Añadidos "JUNGKOOK" y "JHOPE" sin espacios para leer feats y solistas correctamente
+solo_bts = ["BTS", "JUNG KOOK", "JUNGKOOK", "JIMIN", "V", "SUGA", "J-HOPE", "JHOPE", "RM", "JIN", "AGUST D"]
 
 def icon_mov(val):
     val = str(val).strip()
@@ -91,7 +92,6 @@ def get_kworb_data(url, table_id):
             if len(cols) < 8: continue
             full_text = cols[2].get_text(separator=" ").strip()
             
-            # Buscamos la palabra exacta en TODO el texto para capturar colaboraciones/feats de manera segura
             if any(re.search(rf"\b{re.escape(member)}\b", full_text.upper()) for member in solo_bts):
                 rows.append({
                     'Puesto': int(cols[0].text.strip()), 'Mov': icon_mov(cols[1].text.strip()),
@@ -114,7 +114,6 @@ def get_simple_chart(url):
             if len(cols) < 3: continue
             full_text = cols[2].get_text(separator=" ").strip()
             
-            # CORRECCIÓN PARA FEATS: Filtro exacto buscando en todo el bloque de texto
             if any(re.search(rf"\b{re.escape(member)}\b", full_text.upper()) for member in solo_bts):
                 rows.append({
                     'Puesto': int(cols[0].text.strip()), 
