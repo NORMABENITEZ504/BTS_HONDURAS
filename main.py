@@ -89,8 +89,9 @@ def get_kworb_data(url, table_id):
             cols = tr.find_all('td')
             if len(cols) < 8: continue
             full_text = cols[2].get_text(separator=" ").strip()
-            artist_name = full_text.split(" - ")[0].strip().upper()
-            if any(member == artist_name for member in solo_bts):
+            
+            # Verificación mejorada en todo el texto para capturar solistas sin fallas
+            if any(member in full_text.upper() for member in solo_bts):
                 rows.append({
                     'Puesto': int(cols[0].text.strip()), 'Mov': icon_mov(cols[1].text.strip()),
                     'Canción': full_text, 'Streams': cols[6].text.strip(), 'Evolución': cols[7].text.strip()
@@ -98,6 +99,7 @@ def get_kworb_data(url, table_id):
         return pd.DataFrame(rows)
     except: return pd.DataFrame()
 
+# --- FUNCIÓN CORREGIDA PARA DEEZER Y APPLE MUSIC ---
 def get_simple_chart(url):
     headers = {'User-Agent': 'Mozilla/5.0'}
     try:
@@ -111,9 +113,14 @@ def get_simple_chart(url):
             cols = tr.find_all('td')
             if len(cols) < 3: continue
             full_text = cols[2].get_text(separator=" ").strip()
-            artist_name = full_text.split(" - ")[0].strip().upper()
-            if any(member == artist_name for member in solo_bts):
-                rows.append({'Puesto': int(cols[0].text.strip()), 'Mov': icon_mov(cols[1].text.strip()), 'Canción': full_text})
+            
+            # CORRECCIÓN: Buscamos si el miembro existe en cualquier parte del texto de la canción/artista
+            if any(member in full_text.upper() for member in solo_bts):
+                rows.append({
+                    'Puesto': int(cols[0].text.strip()), 
+                    'Mov': icon_mov(cols[1].text.strip()), 
+                    'Canción': full_text
+                })
         return pd.DataFrame(rows)
     except: return pd.DataFrame()
 
