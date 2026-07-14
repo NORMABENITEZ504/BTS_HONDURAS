@@ -4,6 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 import base64
+import re  # Añadimos re para filtros exactos
 
 # --- CONFIGURACIÓN DE LA PÁGINA ---
 st.set_page_config(page_title="BTS Charts Honduras 🇭🇳", page_icon="BTS_Logo.png", layout="wide")
@@ -89,9 +90,10 @@ def get_kworb_data(url, table_id):
             cols = tr.find_all('td')
             if len(cols) < 8: continue
             full_text = cols[2].get_text(separator=" ").strip()
+            artist_part = full_text.split(" - ")[0].strip().upper()
             
-            # Verificación mejorada en todo el texto para capturar solistas sin fallas
-            if any(member in full_text.upper() for member in solo_bts):
+            # Filtro exacto usando límites de palabra (\b) para evitar coincidencias parciales
+            if any(re.search(rf"\b{re.escape(member)}\b", artist_part) for member in solo_bts):
                 rows.append({
                     'Puesto': int(cols[0].text.strip()), 'Mov': icon_mov(cols[1].text.strip()),
                     'Canción': full_text, 'Streams': cols[6].text.strip(), 'Evolución': cols[7].text.strip()
@@ -99,7 +101,6 @@ def get_kworb_data(url, table_id):
         return pd.DataFrame(rows)
     except: return pd.DataFrame()
 
-# --- FUNCIÓN CORREGIDA PARA DEEZER Y APPLE MUSIC ---
 def get_simple_chart(url):
     headers = {'User-Agent': 'Mozilla/5.0'}
     try:
@@ -113,9 +114,10 @@ def get_simple_chart(url):
             cols = tr.find_all('td')
             if len(cols) < 3: continue
             full_text = cols[2].get_text(separator=" ").strip()
+            artist_part = full_text.split(" - ")[0].strip().upper()
             
-            # CORRECCIÓN: Buscamos si el miembro existe en cualquier parte del texto de la canción/artista
-            if any(member in full_text.upper() for member in solo_bts):
+            # Filtro exacto por palabra para el artista en Deezer y Apple Music
+            if any(re.search(rf"\b{re.escape(member)}\b", artist_part) for member in solo_bts):
                 rows.append({
                     'Puesto': int(cols[0].text.strip()), 
                     'Mov': icon_mov(cols[1].text.strip()), 
@@ -136,7 +138,7 @@ def get_apple_bcd_data(url):
         for table in tables:
             for tr in table.find_all('tr')[1:]:
                 text = tr.get_text().upper()
-                if any(m in text for m in solo_bts):
+                if any(re.search(rf"\b{re.escape(m)}\b", text) for m in solo_bts):
                     cols = tr.find_all('td')
                     if len(cols) >= 3:
                         rows.append({
