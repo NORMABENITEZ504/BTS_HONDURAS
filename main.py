@@ -66,7 +66,7 @@ if bin_str:
     </style>
     ''', unsafe_allow_html=True)
 
-# --- FUNCIONES DE EXTRACCIÓN DE DATOS ---
+# --- VARIABLES Y FUNCIONES DE DATOS ---
 solo_bts = ["BTS", "JUNG KOOK", "JIMIN", "V", "SUGA", "J-HOPE", "RM", "JIN", "AGUST D"]
 
 def icon_mov(val):
@@ -123,29 +123,8 @@ def get_apple_bcd_data(url):
         response = requests.get(url, headers=headers, timeout=15)
         response.encoding = 'utf-8'
         html = response.text
-        
-        # Como los datos están en formato JSON dentro del HTML de Next.js,
-        # buscamos patrones de texto que coincidan con los nombres de los chicos
         rows = []
         soup = BeautifulSoup(html, 'html.parser')
-        
-        # Buscamos todos los scripts que contienen datos
-        scripts = soup.find_all('script')
-        for script in scripts:
-            content = script.get_text()
-            if "BTS" in content or "JUNG KOOK" in content:
-                # Aquí aplicamos una búsqueda de texto simple pero efectiva
-                # para extraer el Puesto, Artista y Canción
-                for member in solo_bts:
-                    if member in content.upper():
-                        # Esta es una simplificación: si el nombre existe, 
-                        # intentamos recuperar la estructura básica.
-                        # Nota: Si b-cd cambia su estructura, esto se ajusta.
-                        pass 
-
-        # Por ahora, para asegurar que tu app NO se rompa mientras calibramos 
-        # la lectura de b-cd.app, usaremos esta lógica de filtrado:
-        # (Si la web permite scraping simple, esto lo captura)
         tables = soup.find_all('table')
         for table in tables:
             for tr in table.find_all('tr')[1:]:
@@ -198,16 +177,25 @@ with tab_spot:
 with tab_ytm:
     st.header("🎵 YouTube Music Honduras")
     fecha_update_ytm = "11 de abril 2026"
-    data_yt_diario = [] 
     st.write(f"Última actualización: **{fecha_update_ytm}**")
+    
+    data_yt_music = [
+        {"Puesto": 28, "Mov": "➡️ =", "Tipo": "Diario", "Canción": "SWIM - BTS"},
+        {"Puesto": 78, "Mov": "🟥 -2", "Tipo": "Semanal", "Canción": "SWIM - BTS"}
+    ]
+    df_yt_music = pd.DataFrame(data_yt_music)
+    
     col_d, col_w = st.columns(2)
     with col_d:
         st.subheader("Top diario")
-        if not data_yt_diario: st.warning("Hoy no hay canciones en el chart diario.")
-        else: st.dataframe(pd.DataFrame(data_yt_diario), hide_index=True, use_container_width=True, height=600)
+        df_daily_ytm = df_yt_music[df_yt_music['Tipo'] == 'Diario'][['Puesto', 'Mov', 'Canción']]
+        if df_daily_ytm.empty: st.warning("Hoy no hay canciones en el chart diario.")
+        else: st.dataframe(df_daily_ytm, hide_index=True, use_container_width=True)
     with col_w:
         st.subheader("Top semanal")
-        st.info("No hay entradas en el chart semanal.")
+        df_weekly_ytm = df_yt_music[df_yt_music['Tipo'] == 'Semanal'][['Puesto', 'Mov', 'Canción']]
+        if df_weekly_ytm.empty: st.info("No hay entradas en el chart semanal.")
+        else: st.dataframe(df_weekly_ytm, hide_index=True, use_container_width=True)
 
 with tab_apple:
     st.header("🍎 Apple Music Charts")
