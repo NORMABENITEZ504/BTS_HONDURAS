@@ -68,8 +68,7 @@ if bin_str:
     ''', unsafe_allow_html=True)
 
 # --- VARIABLES Y FUNCIONES DE DATOS ---
-# CORRECCIÓN: Añadidos "JUNGKOOK" y "JHOPE" sin espacios para leer feats y solistas correctamente
-solo_bts = ["BTS", "JUNG KOOK", "JUNGKOOK", "JIMIN", "V", "SUGA", "J-HOPE", "JHOPE", "RM", "JIN", "AGUST D"]
+solo_bts = ["BTS", "JUNG KOOK", "JUNGKOOK", "JIMIN", "SUGA", "J-HOPE", "JHOPE", "RM", "JIN", "AGUST D"]
 
 def icon_mov(val):
     val = str(val).strip()
@@ -77,6 +76,32 @@ def icon_mov(val):
     if "+" in val: return f"🟩 {val}"
     if "-" in val: return f"🟥 {val}"
     return f"🔵 {val}"
+
+# Nueva función de validación estricta para evitar intrusos de la letra "V"
+def es_artista_valido(text_completo):
+    text_upper = text_completo.upper()
+    
+    # Excluir explícitamente artistas conocidos por causar falsos positivos con la letra V
+    exclusiones = ["BAD BUNNY", "DEI V", "OMAR COURTZ", "TITO DOUBLE P", "MUSA ELEVA", "MUSAELEV"]
+    if any(exc in text_upper for exc in exclusiones):
+        return False
+        
+    # Comprobar los miembros con nombres largos primero
+    if any(re.search(rf"\b{re.escape(member)}\b", text_upper) for member in solo_bts):
+        return True
+        
+    # Filtro ultra-estricto para "V": Debe ser la palabra exacta V, pero que NO esté ligada a frases comunes no-BTS
+    if re.search(r"\bV\b", text_upper):
+        # Si dice "BTS", "V OF", o si la fila entera contiene "BTS" es válido
+        if "BTS" in text_upper or "FEAT. V" in text_upper or "FT. V" in text_upper:
+            return True
+        # En Kworb las canciones individuales de V suelen listarse con su nombre limpio o con el tag de BTS
+        # Si no pertenece a las exclusiones y es el artista principal (antepuesto al guión) lo dejamos pasar
+        partes = text_upper.split(" - ")
+        if len(partes) > 0 and re.search(r"^\bV\b", partes[0].strip()):
+            return True
+
+    return False
 
 def get_kworb_data(url, table_id):
     headers = {'User-Agent': 'Mozilla/5.0'}
@@ -92,7 +117,8 @@ def get_kworb_data(url, table_id):
             if len(cols) < 8: continue
             full_text = cols[2].get_text(separator=" ").strip()
             
-            if any(re.search(rf"\b{re.escape(member)}\b", full_text.upper()) for member in solo_bts):
+            # Usamos el filtro refinado inteligente
+            if es_artista_valido(full_text):
                 rows.append({
                     'Puesto': int(cols[0].text.strip()), 'Mov': icon_mov(cols[1].text.strip()),
                     'Canción': full_text, 'Streams': cols[6].text.strip(), 'Evolución': cols[7].text.strip()
@@ -114,7 +140,8 @@ def get_simple_chart(url):
             if len(cols) < 3: continue
             full_text = cols[2].get_text(separator=" ").strip()
             
-            if any(re.search(rf"\b{re.escape(member)}\b", full_text.upper()) for member in solo_bts):
+            # Usamos el filtro refinado inteligente
+            if es_artista_valido(full_text):
                 rows.append({
                     'Puesto': int(cols[0].text.strip()), 
                     'Mov': icon_mov(cols[1].text.strip()), 
@@ -135,7 +162,7 @@ def get_apple_bcd_data(url):
         for table in tables:
             for tr in table.find_all('tr')[1:]:
                 text = tr.get_text().upper()
-                if any(re.search(rf"\b{re.escape(m)}\b", text) for m in solo_bts):
+                if es_artista_valido(text):
                     cols = tr.find_all('td')
                     if len(cols) >= 3:
                         rows.append({
@@ -272,4 +299,4 @@ with tab_social:
         st.write("**Instagram Miembros:**")
         st.caption("[RM](https://www.instagram.com/rkive) | [Jin](https://www.instagram.com/jin) | [SUGA](https://www.instagram.com/agustd) | [j-hope](https://www.instagram.com/uarmyhope) | [Jimin](https://www.instagram.com/j.m) | [V](https://www.instagram.com/thv) | [JK](https://www.instagram.com/mnijungkook)")
 
-st.markdown('<p style="text-align: center; color: #004aad; margin-top: 50px;">Hecho con amor para ARMY Honduras 💜</p>', unsafe_allow_html=True)
+st.markdown('<p style="text-align: center; color: #004aad; margin-top: 50px;">Hecho con amor para ARMY Honduras 💜</p>', unsafe_allow_html=True) 
